@@ -11,7 +11,7 @@ loadct,1
 !p.background=0
 stretch,255,60
 
-cd,'/Users/eoincarley/Data/CALLISTO/20110922'
+cd,'~/Data/22Sep2011_event/herringbones'
 radio_spectro_fits_read,'BIR_20110922_104459_01.fit',data_raw,times,freq
 
 ;*************  Define Time and Frequency Interval  *************** 
@@ -168,7 +168,7 @@ plots,burst_times, freq_set, psym=1, color=230, symsize=2
 	!p.color=255
 	!p.background=0
 	stretch,255,60
-        window,1
+  window, 1, xs=2200, ys=700
 		spectro_plot,(bytscl(constbacksub(data_raw,/auto),-20,200)), times, freq, $
 		/ys, ytitle='!6Frequency [MHz]', yticks=5, yminor=4, yr = [freq[f1_index],freq[f2_index]], $
 		xrange=[times[t1_index],times[t2_index]], /xs, xtitle='Start time:'+anytim(times[t1_index],/yoh),$
