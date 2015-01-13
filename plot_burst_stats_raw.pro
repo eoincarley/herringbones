@@ -3,7 +3,7 @@ pro plot_burst_stats_raw
 ;12-Sep-2013 plot burst stats derived from Hough analysis
 
 
-cd,'~/Data/CALLISTO/20110922'
+cd,'~/Data/22Sep2011_event/herringbones'
 ;--------------------------------------------
 ;			 First do raw data
 ;
@@ -159,7 +159,7 @@ axis, yaxis=0, ytickname=[' ', ' ', ' ', ' ', ' ', ' ', ' '], yr=[-5, -30], ythi
 axis, yaxis=1, ytickname=[' ', ' ', ' ', ' ', ' ', ' ',' '], yr=[-5, -30], ythick=3
 device,/close
 set_plot,'x'
-
+stop
 
 alldrift = alldrift[ 1: n_elements(alldrift)-1 ]
 remove_nans, alldrift, alldrift
@@ -205,7 +205,7 @@ utplot, times, freq, yr=[80, 40], xr=[t1, t2], $
 position=[0.1, 0.15, 0.9, 0.5], /normal,thick=3, /noerase, /xs, /ys, ytitle='Frequency (MHz)',$
 title='Bursts detected using the Hough trasnform'
 col_scale=3.0
-stop
+
 loadct,39
 FOR i=0, n_elements(indices)-2 DO BEGIN
 
