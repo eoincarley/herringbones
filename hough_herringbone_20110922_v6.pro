@@ -66,7 +66,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_
       charsize=1.5, $
       ytitle='Frequency (MHz)', $
       title='Backprojected Hough Transform'
-
+stop
 
   ;         			  END OF HOUGH IMAGE PROCESSING
   ;
@@ -102,7 +102,6 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_
     
       find_peaks, time_set, intensity, $
               peak_times, peak_intensity ;Get peak and trough points
-    
 
 
       get_half_intensity_time, peak_intensity, peak_times, time_4profile, profile_interp, $
@@ -127,8 +126,8 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_
       left_over = abs(n_elements(times_from_interp) - 249.0)
       padding = dblarr(left_over)
       concat = [times_from_interp,padding]
-      peak_time_freq[k,0.0] = freq_set[f_slice] ;particular frequency
-      peak_time_freq[k,1:249] = concat  ;<----All times of peaks for a particular freqeuncy.
+      peak_time_freq[k, 0] = freq_set[f_slice] ;particular frequency
+      peak_time_freq[k, 1:249] = concat  ;<----All times of peaks for a particular freqeuncy.
                         ;This array is columns of times at partiuclar freq
                         ;with the frequency in the first element of the column
  
@@ -154,8 +153,8 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_
     
   set_line_color
   save, peak_time_freq, filename='peak_time_freq.sav'
-  FOR i=0,n_elements(freq_set)-1 do begin
-      plots,peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
+  FOR i=0, n_elements(freq_set)-1 do begin
+      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
   ENDFOR
 
 
