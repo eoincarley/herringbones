@@ -66,7 +66,7 @@ pro plot_points_from_hough
         /xs, $
         xtitle = xtit
  
-stop
+
       i = n_elements(peak_time_freq[*, 0]) - 5
       WHILE i gt 1 DO BEGIN 
   
@@ -113,73 +113,13 @@ stop
       bff = bf
       inten = prof
   
-  
       write_text, bt, bff, inten
-  
-      loadct,39
-      wset,2
-      plot, bf, prof, psym=1,color=(240 - j*3.5), /noerase, xr=[40,80], yr=[140,200],$
-       xtitle='Frequency (MHz)', ytitle='Intensity' 
-      oplot, bf, prof, color=(240 - j*3.5)
-  
-      wset,3
-      tsec= btimes[*]-btimes[0]
-      plot, tsec, bf,  color=(240 - j*3.5), /noerase, xr=[0,5], yr=[40,80], $
-      xtitle='Time (s)', ytitle='Frequency (MHz)'
-  
-      wset,4
-      plot, tsec, prof,  color=(240 - j*3.5), xr=[0,5], yr=[140, 200], /noerase
-  
-      ;---------------------------------------------;
-      ;				Get drift rate
-      ;		
-      wset,5
-      index = where(tsec gt 0.0)
-      if index[0] gt -1 then begin
-        result = linfit(tsec[index], bf[index])
-      ENDIF ELSE BEGIN
-        result = linfit(tsec, bf)
-      ENDELSE	
-      drift = result[1]
-      print,'Drift rate: '+string(drift)
-  
-  
-      if index[0] gt -1 then begin
-        result = linfit(tsec[index], prof[index])
-      ENDIF ELSE BEGIN
-        result = linfit(tsec, prof)
-      ENDELSE		
-      it = result[1]
-      maxI = max(prof)
-      print, 'Intesnity v time: '+string(it)
-      set_line_color
-      plot, [0,drift], [0, maxI]  , /noerase, psym=2, xr=[6,14], yr=[160, 180], color=1
-  
   
       btimes = 0.0
       bf=0.0
       drift=0.0
 
   ENDFOR
-  wset,2
-  set_line_color
-  axis, xaxis=0, xr=[40,80], color=1, xtitle='Frequency (MHz)'
-  axis, xaxis=1, xr=[40,80], color=1, xtickname=[' ', ' ', ' ', ' ', ' ']
-
-  axis, yaxis=0, xr=[0, 50], color=1, ytitle='Intensity' 
-  axis, yaxis=1, xr=[0, 50], color=1, ytickname=[' ', ' ', ' ', ' ', ' ',' ']
-
-  wset,3
-  set_line_color
-  axis, xaxis=0, xr=[0,5], color=1, xtitle='Time (s)'
-  axis, xaxis=1, xr=[0,5], color=1, xtickname=[' ', ' ', ' ', ' ', ' ']
-
-  axis, yaxis=0, yr=[40, 80], color=1, ytitle='Frequency (MHz)'
-  axis, yaxis=1, yr=[40, 80], color=1, ytickname=[' ', ' ', ' ', ' ', ' ',' ']
-  ;plots, t1, f1, color=4, psym=1, symsize=2
-  
-
-
 
 END
 
