@@ -11,7 +11,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   loadct, 1
   !p.charsize = 1
   cd,'~/Data/22Sep2011_event/herringbones'
-  radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times,freq
+  radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
 
   ;----------  Define Time and Frequency Interval  ----------- 
   t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
@@ -26,9 +26,10 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       ; f2_index = closest(freq,35.0)
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
-
+  inten0 = -20
+  inten1 = 50
   data_section = data_raw[t1_index:t2_index, f1_index:f2_index]
-  data_clip =  gradient(bytscl(constbacksub( data_section, /auto), -20.0, 50.0))
+  data_clip =  gradient(bytscl(constbacksub( data_section, /auto), inten0, inten1))
 
   theta1 = angle1*!dtor
   theta2 = angle2*!dtor
@@ -116,7 +117,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
                   ; profile.
     
 
-      loadct, 9
+      loadct, 9, /silent
       wset, 4
       spectro_plot, bytscl(normal_back, 0.5, 1.0), time_set, freq_set, $
           /xs, $
@@ -145,7 +146,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   loadct,1
   reverse_ct
   window, 1, xs=2400, ys=700
-  spectro_plot,( bytscl(constbacksub(data_raw,/auto), -20, 50) ), times, freq, $
+  spectro_plot,( bytscl(constbacksub(data_raw,/auto), inten0, inten1) ), times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
       yticks = 5, $
