@@ -1,4 +1,5 @@
-pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_hough
+pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
+          PLOT_HOUGH=plot_hough, SAVE_POINTS = save_points
 
   ;v5 first finds all bursts for a particular frequency slice and then succesively moves onto the
   ;next frequencies. Need to do it the other way around e.g., get the first peak and trace this peak 
@@ -17,7 +18,12 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_
   t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
   f1_index = closest(freq, 80.0)
   f2_index = closest(freq, 45.0)
-
+  
+      ; Region of first set of herringbones. Choose angles 190 and 210.
+      ; t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+      ; t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+      ; f1_index = closest(freq,60.0)
+      ; f2_index = closest(freq,35.0)
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
 
@@ -66,7 +72,6 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, PLOT_HOUGH=plot_
       charsize=1.5, $
       ytitle='Frequency (MHz)', $
       title='Backprojected Hough Transform'
-stop
 
   ;         			  END OF HOUGH IMAGE PROCESSING
   ;
@@ -152,7 +157,7 @@ stop
       charsize = 2.0
     
   set_line_color
-  save, peak_time_freq, filename='peak_time_freq.sav'
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq.sav'
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
   ENDFOR

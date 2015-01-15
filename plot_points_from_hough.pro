@@ -15,7 +15,7 @@ pro plot_points_from_hough
   f1_index = closest(freq,80.0)
   f2_index = closest(freq,45.0)
   data_bs = constbacksub(data_raw,/auto)
-  xtit = 'Start time:'+anytim(times[t1_index], /cc)+ '(UT)'
+  xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
 
   spectro_plot, data_bs , times, freq, $
       /ys, $
@@ -46,9 +46,8 @@ pro plot_points_from_hough
   ;plot, [0,0], [0,0], xr=[40,80], yr=[140,200]
   
   
-  ft1_index = where(peak_time_freq[nfreqs - 4, *] gt 0.0) ;start at second frequency column. First does not go through all points.
-  ft1 = peak_time_freq[nfreqs - 4, ft1_index]
-
+  ft1_index = where(peak_time_freq[nfreqs - 7, *] gt 0.0) ;start at second frequency column. First does not go through all points.
+  ft1 = peak_time_freq[nfreqs - 7, ft1_index]
 
   FOR j=1, n_elements(ft1)-1 DO BEGIN
     comp_f = ft1[0]
@@ -66,8 +65,7 @@ pro plot_points_from_hough
         /xs, $
         xtitle = xtit
  
-
-      i = n_elements(peak_time_freq[*, 0]) - 5
+      i = n_elements(peak_time_freq[*, 0]) - 6
       WHILE i gt 1 DO BEGIN 
   
           ft_index = where(peak_time_freq[i, *] gt 0.0)
@@ -76,8 +74,8 @@ pro plot_points_from_hough
           f = ft[0]
           index_t = closest(ft, comp_t)
           t = ft[index_t]
-    
-          ;also put a check in here
+          
+          ;also put a check in here. If intensity of found point is within 2 stdev of nominal back ground then i=0
           If abs(comp_t - t) gt 0.5 THEN BEGIN
             i=0
           ENDIF ELSE BEGIN
@@ -94,31 +92,33 @@ pro plot_points_from_hough
   
       ENDWHILE
       
-      btimes = btimes[1: n_elements(btimes)-1]
-      bf = bf[1: n_elements(bf)-1]
-      tindex = btimes
-      findex = bf
+      if btimes[0] gt 0.0 then begin
+        btimes = btimes[1: n_elements(btimes)-1]
+        bf = bf[1: n_elements(bf)-1]
+        tindex = btimes
+        findex = bf
   
-      ;---------------------------------------------;
-      ;				        Get profile
-      ;
+        ;---------------------------------------------;
+        ;				        Get profile
+        ;
   
-      FOR i=0, n_elements(btimes)-1 DO BEGIN
-        tindex[i] = closest(times, btimes[i])
-        findex[i] = closest(freq, bf[i])
-      ENDFOR
-      prof= interpolate(data_bs, tindex, findex) 
+        FOR i=0, n_elements(btimes)-1 DO BEGIN
+          tindex[i] = closest(times, btimes[i])
+          findex[i] = closest(freq, bf[i])
+        ENDFOR
+        prof= interpolate(data_bs, tindex, findex) 
   
-      bt = btimes
-      bff = bf
-      inten = prof
+        bt = btimes
+        bff = bf
+        inten = prof
   
-      write_text, bt, bff, inten
-  
+        write_text, bt, bff, inten
+      endif
+        
       btimes = 0.0
       bf=0.0
       drift=0.0
-
+      wait, 1.0
   ENDFOR
 
 END
