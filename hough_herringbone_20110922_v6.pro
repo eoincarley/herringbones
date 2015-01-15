@@ -14,16 +14,16 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
 
   ;----------  Define Time and Frequency Interval  ----------- 
-  t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
-  t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
-  f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 45.0)
+  ;t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+  ;t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
+  ;f1_index = closest(freq, 80.0)
+  ;f2_index = closest(freq, 45.0)
   
-      ; Region of first set of herringbones. Choose angles 190 and 210.
-      ; t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
-      ; t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
-      ; f1_index = closest(freq,60.0)
-      ; f2_index = closest(freq,35.0)
+       ; Region of first set of herringbones. Choose angles 190 and 210.
+       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+       t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+       f1_index = closest(freq,60.0)
+       f2_index = closest(freq,32.0)
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
   inten0 = -20
@@ -158,7 +158,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       charsize = 2.0
     
   set_line_color
-  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq.sav'
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_0.sav'
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
   ENDFOR

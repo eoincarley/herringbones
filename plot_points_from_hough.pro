@@ -11,10 +11,19 @@ pro plot_points_from_hough
   window, 1, xs=1300, ys=600
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
-  t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
-  t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
-  f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 45.0)
+  ;t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
+  ;t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
+  ;f1_index = closest(freq, 80.0)
+  ;f2_index = closest(freq, 45.0)
+  
+  ; Region of first set of herringbones. Choose angles 190 and 210.
+       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+       t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+       f1_index = closest(freq,60.0)
+       f2_index = closest(freq,32.0)
+
+  
+  
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
@@ -37,7 +46,7 @@ pro plot_points_from_hough
     
   
   set_line_color
-  restore,'peak_time_freq.sav'
+  restore,'peak_time_freq_0.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -56,15 +65,15 @@ pro plot_points_from_hough
   ;plot, [0,0], [0,0], xr=[40,80], yr=[140,200]
   
   
-  ft1_index = where(peak_time_freq[nfreqs - 3, *] gt 0.0) ;start at second frequency column. First does not go through all points.
-  ft1 = peak_time_freq[nfreqs - 3, ft1_index]
+  ft1_index = where(peak_time_freq[nfreqs - 4, *] gt 0.0) ;start at second frequency column. First does not go through all points.
+  ft1 = peak_time_freq[nfreqs - 4, ft1_index]
 
   FOR j=1, n_elements(ft1)-1 DO BEGIN
     comp_f = ft1[0]
     comp_t = ft1[j]
 
  
-      i = n_elements(peak_time_freq[*, 0]) - 2
+      i = n_elements(peak_time_freq[*, 0]) - 3
       WHILE i gt 1 DO BEGIN 
   
           ft_index = where(peak_time_freq[i, *] gt 0.0)
@@ -82,10 +91,10 @@ pro plot_points_from_hough
           backg_sample = something[samplef_i]
           sig_sample = sig[samplef_i]
           print, intensity, backg_sample, sig_sample
-          if intensity le (backg_sample + 0.5*sig_sample) then i=0
+          if intensity le (backg_sample + 0.4*sig_sample) then i=0
 
           
-          If abs(comp_t - t) gt 0.5 THEN BEGIN
+          If abs(comp_t - t) gt 1.0 THEN BEGIN
             i=0
           ENDIF ELSE BEGIN
             set_line_color
@@ -123,7 +132,7 @@ pro plot_points_from_hough
         bff = bf
         inten = prof
   
-        write_text, bt, bff, inten
+        ;write_text, bt, bff, inten
       endif
         
       btimes = 0.0
