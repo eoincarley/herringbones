@@ -103,7 +103,7 @@ pro plot_points_from_hough
       ENDWHILE
 
 
-      if n_elements(btimes) gt 1 then begin
+      if n_elements(btimes) gt 3 then begin
         btimes = btimes[1: n_elements(btimes)-1]
         bf = bf[1: n_elements(bf)-1]
         tindex = btimes
