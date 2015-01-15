@@ -37,6 +37,7 @@ pro plot_points_from_hough
     
   
   set_line_color
+  cd,'~/Data/hough_hbones/20110922/'
   restore,'peak_time_freq.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
@@ -81,7 +82,7 @@ pro plot_points_from_hough
           samplef_i = closest(finuse, f)
           backg_sample = something[samplef_i]
           sig_sample = sig[samplef_i]
-          print, intensity, backg_sample, sig_sample
+          ;print, intensity, backg_sample, sig_sample
           if intensity le (backg_sample + 0.5*sig_sample) then i=0
 
           
@@ -122,7 +123,7 @@ pro plot_points_from_hough
         bt = btimes
         bff = bf
         inten = prof
-  
+        stop
         write_text, bt, bff, inten
       endif
         
@@ -147,7 +148,7 @@ IF file_test('bursts_bs_hough.txt') eq 1 THEN BEGIN
 
 ENDIF
 
-
+stop
 writecol, 'bursts_bs_hough.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 
