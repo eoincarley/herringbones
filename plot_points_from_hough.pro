@@ -101,10 +101,9 @@ pro plot_points_from_hough
           i=i-1
   
       ENDWHILE
-      
 
-      
-      if btimes[0] gt 0.0 then begin
+
+      if n_elements(btimes) gt 1 then begin
         btimes = btimes[1: n_elements(btimes)-1]
         bf = bf[1: n_elements(bf)-1]
         tindex = btimes
@@ -123,7 +122,6 @@ pro plot_points_from_hough
         bt = btimes
         bff = bf
         inten = prof
-        stop
         write_text, bt, bff, inten
       endif
         
@@ -138,19 +136,17 @@ END
 
 pro write_text, bt, bff, inten
 
-IF file_test('bursts_bs_hough.txt') eq 1 THEN BEGIN
-	readcol,'bursts_bs_hough.txt', btprev, bffprev, intenprev,$
-	format = 'A,D,D'
-	
-	bt = [btprev, '-', anytim(bt, /ccs)]
-    bff = [bffprev, !Values.F_NAN, bff]
-	inten = [intenprev, !Values.F_NAN, inten]
+  IF file_test('bursts_bs_hough.txt') eq 1 THEN BEGIN
+    readcol,'bursts_bs_hough.txt', btprev, bffprev, intenprev,$
+    format = 'A,D,D'
+  
+    bt = [btprev, '-', anytim(bt, /ccs)]
+      bff = [bffprev, !Values.F_NAN, bff]
+    inten = [intenprev, !Values.F_NAN, inten]
 
-ENDIF
+  ENDIF
 
-stop
-writecol, 'bursts_bs_hough.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
-
+  writecol, 'bursts_bs_hough.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
