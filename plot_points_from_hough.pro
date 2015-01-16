@@ -20,7 +20,7 @@ pro plot_points_from_hough
   
   in = data_bs
   get_bg, in, times, freq, $
-          something, sig
+          out_bg, sig
           
   finuse = freq[f1_index:f2_index]
   
@@ -37,7 +37,6 @@ pro plot_points_from_hough
     
   
   set_line_color
-  cd,'~/Data/hough_hbones/20110922/'
   restore,'peak_time_freq.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
@@ -80,7 +79,7 @@ pro plot_points_from_hough
           sample1 = closest(freq, f) 
           intensity = data_bs[sample0, sample1]
           samplef_i = closest(finuse, f)
-          backg_sample = something[samplef_i]
+          backg_sample = out_bg[samplef_i]
           sig_sample = sig[samplef_i]
           ;print, intensity, backg_sample, sig_sample
           if intensity le (backg_sample + 0.5*sig_sample) then i=0

@@ -29,7 +29,7 @@ pro burst_velocity
   window, 2, xs=dimen, ys=dimen, xpos = xpos, ypos = ypos + 1.0*dimen
   window, 3, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos + 1.0*dimen
   window, 4, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos 
-  folder = '/Users/ecarley/Data/hough_hbones/20110922'
+  folder = '~/Data/22Sep2011_event/herringbones'
   cd, folder
   ;-------------------------------------;
   ;			 Read data
