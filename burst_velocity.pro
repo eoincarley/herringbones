@@ -1,6 +1,6 @@
 function calc_vel, tsec, yfit
 
-  yfit = yfit*1e6               ; Hz
+  yfit = yfit*1e6                 ; Hz
   dens = freq2dens(yfit)
   rads = density_to_radius(dens)
   result = linfit(tsec, rads)
@@ -31,8 +31,8 @@ pro burst_velocity
   window, 4, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos 
   folder = '/Users/ecarley/Data/hough_hbones/20110922'
   cd, folder
-  ;-------------------------------------
-  ;			 First do raw data
+  ;-------------------------------------;
+  ;			 Read data
   ;
   readcol,'bursts_bs_hough.txt', btall, bfall, biall, format = 'A,D,D'
   indices = where(btall eq '-')
@@ -47,7 +47,6 @@ pro burst_velocity
   ;
   j = 0
   FOR i=n_elements(indices)-2, 0, -1 DO BEGIN ;backwards to plot the shortest bursts first.
-  
 
     bt = btall[indices[i]+1: indices[i+1]-1]
     bf = bfall[indices[i]+1: indices[i+1]-1]
@@ -62,7 +61,6 @@ pro burst_velocity
 	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
     
     drift[j] = result[0]
-    
     
     IF i eq n_elements(indices)-2 THEN BEGIN
     
@@ -138,10 +136,10 @@ pro burst_velocity
     psym=4, $  
     yr = [0.0 , 1.0], $
     /xs, $
-    xtitle = 'Beam distance', $
-    ytitle = 'Beam Velocity'
+    xtitle = 'Beam distance (Rsun)', $
+    ytitle = 'Beam velocity (c)'
   
-  beams_kins = list(drift, vels, displ)
+  beam_kins = list(drift, vels, displ, tsec)
   save, beam_kins, filename = 'beam_kins.sav'
   
 END
