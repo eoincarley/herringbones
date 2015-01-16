@@ -182,7 +182,6 @@ pro plot_burst_stats_bs
         ytitle='Rate of change of intensity DI/Dt'
       
       oplot, [0,drift], [0, bidrift], psym=8, color=5
-      stop
     ENDIF ELSE BEGIN	
       oplot, 	[0,drift], [0, bidrift], psym=8, color = (245 - i*col_scale)
     ENDELSE
