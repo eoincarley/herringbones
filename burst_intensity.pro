@@ -13,6 +13,7 @@ pro burst_intensity
   window, 2, xs=dimen, ys=dimen, xpos = xpos, ypos = ypos + 1.0*dimen
   window, 3, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos + 1.0*dimen
   window, 4, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos 
+  window, 5, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos + 1.0*dimen
   folder = '~/Data/22Sep2011_event/herringbones'
   cd, folder
   
@@ -28,7 +29,43 @@ pro burst_intensity
   vels = beam_kins[1]
   displ = beam_kins[2]
   max_bi = fltarr(n_elements(vels))
+  ;-----------------------------------;
+  ;			 First intensity v time
+  ;
+
+  FOR i=n_elements(indices)-2, 0, -1 DO BEGIN
+
+    bt = btall[indices[i]+1: indices[i+1]-1]
+    bf = bfall[indices[i]+1: indices[i+1]-1]
+    bi = biall[indices[i]+1: indices[i+1]-1]
+    tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
+    
+    IF i eq n_elements(indices)-2 THEN BEGIN
+    
+      wset, 5
+      plot, bf, bi, $
+        psym=1, $
+        xr=[45, 80], $
+        yr=[0, 50], $
+        position=pos, $
+        /normal, $
+        title='Back-sub Herringbones 22-Sep-2011', $
+        xtitle='Frequency (MHz)', $
+        ytitle='Intensity'       
+     
+      oplot, bf, bi, color=(250), psym=1
+      oplot, bf, bi, color=(250) 
+      
+    ENDIF ELSE BEGIN	
+    
+      wset,5
   
+      oplot, bf, bi, color = (245 - i*col_scale), psym=1
+      oplot, bf, bi, color = (245 - i*col_scale)
+      
+    ENDELSE		
+
+  ENDFOR	
   ;-----------------------------------;
   ;			 First intensity v time
   ;
@@ -105,15 +142,16 @@ pro burst_intensity
   wset, 3
   plot, displ, max_bi, $
       psym=4, $
-      xr = [0, 0.4], $
+      xr = [0.0, 0.4], $
       xtit = 'Beam displacement (Rsun)', $
       ytit = 'Maximum intensity (DN)'
       
   wset, 4
-  plot, drift, bidrift, $
+  ;pos_i = where(bidrift
+  plot, vels, bidrift, $
       psym=4, $
       yr = [0, -60], $
-      xr = [5, 25], $
+      xr = [0.1, 0.6], $
       xtit = 'Velocity (c)', $
       ytit = 'di/dt (DN)'   
       

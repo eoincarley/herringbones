@@ -8,7 +8,7 @@ pro plot_points_from_hough
   !p.charsize = 1.5
   loadct, 1
   reverse_ct
-  window, 1, xs=1300, ys=600
+  window, 1, xs=2300, ys=800
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
   t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
@@ -33,7 +33,6 @@ pro plot_points_from_hough
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
-     
     
   
   set_line_color
@@ -45,26 +44,19 @@ pro plot_points_from_hough
   ;    plots, peak_time_freq[i, 1:(nburst-1)], peak_time_freq[i, 0.0], color=3, psym=1, symsize=1
   ;ENDFOR
 
-
   btimes = 0.0
   bf = 0.0
   drift = 0.0
-  ;window,5
-  ;window,4
-  ;window,3
-  ;window,2
-  ;plot, [0,0], [0,0], xr=[40,80], yr=[140,200]
   
-  
-  ft1_index = where(peak_time_freq[nfreqs - 3, *] gt 0.0) ;start at second frequency column. First does not go through all points.
-  ft1 = peak_time_freq[nfreqs - 3, ft1_index]
+  ft1_index = where(peak_time_freq[nfreqs - 2, *] gt 0.0) ;start at second frequency column. First does not go through all points.
+  ft1 = peak_time_freq[nfreqs - 2, ft1_index]
+
 
   FOR j=1, n_elements(ft1)-1 DO BEGIN
     comp_f = ft1[0]
     comp_t = ft1[j]
-
  
-      i = n_elements(peak_time_freq[*, 0]) - 2
+      i = nfreqs - 3
       WHILE i gt 1 DO BEGIN 
   
           ft_index = where(peak_time_freq[i, *] gt 0.0)
@@ -89,10 +81,11 @@ pro plot_points_from_hough
             i=0
           ENDIF ELSE BEGIN
             set_line_color
-            btimes = [btimes, comp_t, t]
-            bf = [bf, comp_f, f]
-            plots, comp_f, comp_t, color=4, symsize=0.5, psym=1
-            plots, t, f, color=4, symsize=0.5, psym=1
+            btimes = [btimes,  t]
+            bf = [bf, f]
+            
+            plots, comp_f, comp_t, color=4, symsize=0.5, psym=3
+            plots, t, f, color=4, symsize=0.5, psym=3
           ENDELSE
     
           comp_f = f
@@ -107,7 +100,21 @@ pro plot_points_from_hough
         bf = bf[1: n_elements(bf)-1]
         tindex = btimes
         findex = bf
-  
+        ;---------------------------------------------;
+        ;       Manually choose stopping frequency
+        ;
+        manual = ' '
+        READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
+        if manual eq 'y' then begin
+          ;
+          cursor, user_t, user_f, /data
+          print,'Manual stop frequency: '+string(user_f)
+          ;read, user_f, 'Enter stop frequency:'
+          user_stop_f = closest(bf, user_f)
+          bf = bf[ 0:user_stop_f ]
+          btimes = btimes[ 0:user_stop_f ]
+          plots, btimes, bf, color=3, symsize=0.5, psym=3
+        endif        
         ;---------------------------------------------;
         ;				        Get profile
         ;
@@ -116,7 +123,7 @@ pro plot_points_from_hough
           tindex[i] = closest(times, btimes[i])
           findex[i] = closest(freq, bf[i])
         ENDFOR
-        prof= interpolate(data_bs, tindex, findex) 
+        prof = interpolate(data_bs, tindex, findex) 
   
         bt = btimes
         bff = bf

@@ -17,7 +17,7 @@ pro plot_burst_stats_bs
   window, 3, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos + 1.0*dimen
   ;window, 4, xs=dimen, ys=dimen, xpos = 10, ypos = ypos + 4.0*dimen
   
-  folder = '/Users/ecarley/Data/hough_hbones/20110922'
+  folder = '~/Data/22Sep2011_event/herringbones'
   cd, folder
   ;-------------------------------------
   ;			 First do raw data
