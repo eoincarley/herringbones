@@ -5,10 +5,11 @@ pro plot_points_from_hough
   ;
   ;
   cd, '~/Data/22Sep2011_event/herringbones'
+  spawn,'rm -f bursts_bs_hough_first.txt'
   !p.charsize = 1.5
   loadct, 1
   reverse_ct
-  window, 1, xs=1300, ys=600
+  window, 1, xs=2300, ys=800
   ;window, 2, xs=1300, ys=600
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
@@ -18,10 +19,10 @@ pro plot_points_from_hough
   ;f2_index = closest(freq, 45.0)
   
   ; Region of first set of herringbones. Choose angles 190 and 210.
-       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
-       t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
-       f1_index = closest(freq, 60.0)
-       f2_index = closest(freq, 32.0)
+  t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+  t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+  f1_index = closest(freq, 60.0)
+  f2_index = closest(freq, 32.0)
 
   
   
@@ -44,16 +45,15 @@ pro plot_points_from_hough
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
-     
-    
+       
   
   set_line_color
-  restore,'peak_time_freq_0.sav'
+  restore,'peak_time_freq_first.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
   ;FOR i=0, nfreqs-1 DO BEGIN
-  ;    plots, peak_time_freq[i, 1:(nburst-1)], peak_time_freq[i, 0.0], color=3, psym=1, symsize=1
+   ;   plots, peak_time_freq[i, 1:(nburst-1)], peak_time_freq[i, 0.0], color=3, psym=3, symsize=1
   ;ENDFOR
 
 
@@ -61,12 +61,6 @@ pro plot_points_from_hough
   bf = 0.0
   drift = 0.0
   inten_sample = fltarr(5)
-  
-  ;window,5
-  ;window,4
-  ;window,3
-  ;window,2
-  ;plot, [0,0], [0,0], xr=[40,80], yr=[140,200]
   
   
   ft1_index = where(peak_time_freq[nfreqs - 3, *] gt 0.0) ;start at second frequency column. First does not go through all points.
@@ -94,10 +88,10 @@ pro plot_points_from_hough
           backg_sample = out_bg[samplef_i]
           sig_sample = sig[samplef_i]
           ;print, intensity, backg_sample, sig_sample
-          if intensity le (backg_sample + 0.5*sig_sample) then i=0
+          ;if intensity le (backg_sample + 0.5*sig_sample) then i=0
 
           
-          If abs(comp_t - t) gt 0.5 THEN BEGIN
+          IF (comp_t - t) gt 1.0 or (comp_t - t) lt -1.0 THEN BEGIN
             i=0
           ENDIF ELSE BEGIN
             set_line_color
@@ -116,45 +110,51 @@ pro plot_points_from_hough
 
 
       if n_elements(btimes) gt 3 then begin
-        btimes = btimes[1: n_elements(btimes)-1]
-        bf = bf[1: n_elements(bf)-1]
-        tindex = btimes
-        findex = bf
-        ;---------------------------------------------;
-        ;       Manually choose stopping frequency
-        ;
-        manual = ' '
-        READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
-        if manual eq 'y' then begin
+          btimes = btimes[1: n_elements(btimes)-1]
+          bf = bf[1: n_elements(bf)-1]
+          tindex = btimes
+          findex = bf
+          
+          ;---------------------------------------------;
+          ;       Manually choose stopping frequency
           ;
-          cursor, user_t, user_f, /data
-          print,'Manual stop frequency: '+string(user_f)
-          ;read, user_f, 'Enter stop frequency:'
-          user_stop_f = closest(bf, user_f)
-          bf = bf[ 0:user_stop_f ]
-          btimes = btimes[ 0:user_stop_f ]
-          plots, btimes, bf, color=3, symsize=0.5, psym=3
-        endif        
-        ;---------------------------------------------;
-        ;				        Get profile
-        ;
+          store = ' '
+          READ, store, prompt = 'Store? (y/n)'
+          if store ne 'n' then begin
+              manual = ' '
+              READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
+              if manual eq 'y' then begin
+                  ;
+                  print,'Choose stop frequency: '
+                  cursor, user_t, user_f, /data
+                  print,'Manual stop frequency: '+string(user_f)
+                  ;read, user_f, 'Enter stop frequency:'
+                  user_stop_f = closest(bf, user_f)
+                  bf = bf[ 0:user_stop_f ]
+                  btimes = btimes[ 0:user_stop_f ]
+                  plots, btimes, bf, color=3, symsize=0.5, psym=3
+              endif        
+              
+              ;---------------------------------------------;
+              ;				        Get profile
+              ;
+              FOR i=0, n_elements(btimes)-1 DO BEGIN
+                tindex[i] = closest(times, btimes[i])
+                findex[i] = closest(freq, bf[i])
+              ENDFOR
+              prof = interpolate(data_bs, tindex, findex) 
   
-        FOR i=0, n_elements(btimes)-1 DO BEGIN
-          tindex[i] = closest(times, btimes[i])
-          findex[i] = closest(freq, bf[i])
-        ENDFOR
-        prof = interpolate(data_bs, tindex, findex) 
-  
-        bt = btimes
-        bff = bf
-        inten = prof
-        write_text, bt, bff, inten
+              bt = btimes
+              bff = bf
+              inten = prof
+              write_text, bt, bff, inten
+          endif
       endif
         
       btimes = 0.0
       bf=0.0
       drift=0.0
-      wait, 1.0
+     
   ENDFOR
 
 END
@@ -162,19 +162,17 @@ END
 
 pro write_text, bt, bff, inten
 
-IF file_test('bursts_bs_hough.txt') eq 1 THEN BEGIN
-	readcol,'bursts_bs_hough.txt', btprev, bffprev, intenprev,$
-	format = 'A,D,D'
-	
-	bt = [btprev, '-', anytim(bt, /ccs)]
-    bff = [bffprev, !Values.F_NAN, bff]
-	inten = [intenprev, !Values.F_NAN, inten]
+  IF file_test('bursts_bs_hough_first.txt') eq 1 THEN BEGIN
+    readcol,'bursts_bs_hough_first.txt', btprev, bffprev, intenprev,$
+    format = 'A,D,D'
+  
+    bt = [btprev, '-', anytim(bt, /ccs)]
+      bff = [bffprev, !Values.F_NAN, bff]
+    inten = [intenprev, !Values.F_NAN, inten]
 
-ENDIF
+  ENDIF
 
-
-writecol, 'bursts_bs_hough.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
-
+  writecol, 'bursts_bs_hough_first.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 

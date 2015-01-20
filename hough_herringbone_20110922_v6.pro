@@ -158,7 +158,8 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       charsize = 2.0
     
   set_line_color
-  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_0.sav'
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_first.sav', $
+          description = 'This is from the first set of burst from 10:47:30 - 10:50:00.'
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
   ENDFOR
