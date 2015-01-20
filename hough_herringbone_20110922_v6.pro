@@ -159,7 +159,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
     
   set_line_color
   cd,'~/Data/22Sep2011_event/herringbones'
-  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq.sav'
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_second.sav'
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
   ENDFOR

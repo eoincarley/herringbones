@@ -5,6 +5,7 @@ pro plot_points_from_hough
   ;
   ;
   cd, '~/Data/22Sep2011_event/herringbones'
+  spawn,'rm -f bursts_bs_hough_second.txt'
   !p.charsize = 1.5
   loadct, 1
   reverse_ct
@@ -36,7 +37,7 @@ pro plot_points_from_hough
     
   
   set_line_color
-  restore,'peak_time_freq.sav'
+  restore,'peak_time_freq_second.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -103,32 +104,37 @@ pro plot_points_from_hough
         ;---------------------------------------------;
         ;       Manually choose stopping frequency
         ;
-        manual = ' '
-        READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
-        if manual eq 'y' then begin
-          ;
-          cursor, user_t, user_f, /data
-          print,'Manual stop frequency: '+string(user_f)
-          ;read, user_f, 'Enter stop frequency:'
-          user_stop_f = closest(bf, user_f)
-          bf = bf[ 0:user_stop_f ]
-          btimes = btimes[ 0:user_stop_f ]
-          plots, btimes, bf, color=3, symsize=0.5, psym=3
-        endif        
-        ;---------------------------------------------;
-        ;				        Get profile
-        ;
+        store = ' '
+        READ, store, prompt = 'Store? (y/n)'
+        if store ne 'n' then begin
+            manual = ' '
+            READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
+            if manual eq 'y' then begin
+                ;
+                print,'Choose stop frequency: '
+                cursor, user_t, user_f, /data
+                print,'Manual stop frequency: '+string(user_f)
+                ;read, user_f, 'Enter stop frequency:'
+                user_stop_f = closest(bf, user_f)
+                bf = bf[ 0:user_stop_f ]
+                btimes = btimes[ 0:user_stop_f ]
+                plots, btimes, bf, color=3, symsize=0.5, psym=3
+            endif        
   
-        FOR i=0, n_elements(btimes)-1 DO BEGIN
-          tindex[i] = closest(times, btimes[i])
-          findex[i] = closest(freq, bf[i])
-        ENDFOR
-        prof = interpolate(data_bs, tindex, findex) 
-  
-        bt = btimes
-        bff = bf
-        inten = prof
-        write_text, bt, bff, inten
+            ;---------------------------------------------;
+            ;				        Get profile
+            ;
+            FOR i=0, n_elements(btimes)-1 DO BEGIN
+              tindex[i] = closest(times, btimes[i])
+              findex[i] = closest(freq, bf[i])
+            ENDFOR
+            prof = interpolate(data_bs, tindex, findex) 
+
+            bt = btimes
+            bff = bf
+            inten = prof
+            write_text, bt, bff, inten
+        endif
       endif
         
       btimes = 0.0
@@ -142,8 +148,8 @@ END
 
 pro write_text, bt, bff, inten
 
-  IF file_test('bursts_bs_hough.txt') eq 1 THEN BEGIN
-    readcol,'bursts_bs_hough.txt', btprev, bffprev, intenprev,$
+  IF file_test('bursts_bs_hough_second.txt') eq 1 THEN BEGIN
+    readcol,'bursts_bs_hough_second.txt', btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -152,7 +158,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_bs_hough.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, 'bursts_bs_hough_second.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
