@@ -56,11 +56,11 @@ pro burst_velocity
     tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     result = linfit(tsec, bf, yfit = yfit)
     
-    start = [result[1]]
-	  fit = 'p[0]*x + 46.0'			
-	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+    ;start = [result[1]]
+	  ;fit = 'p[0]*x + 46.0'			
+	  ;result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
     
-    drift[j] = result[0]
+    drift[j] = result[1]
     
     IF i eq n_elements(indices)-2 THEN BEGIN
     
@@ -68,7 +68,7 @@ pro burst_velocity
       plot, tsec, bf, $
           /ys, $
           xr=[0, 5], $
-          yr=[45, 80], $
+          yr=[30, 80], $
           position=pos, $
           /normal, $
           title='Back-sub Herringbones 22-Sep-2011', $
@@ -81,7 +81,7 @@ pro burst_velocity
       plot, tsec, yfit, $
           /ys, $
           xr=[0, 5], $
-          yr=[45, 80], $
+          yr=[30, 80], $
           position=pos, $
           /normal, $
           title='Back-sub Herringbones 22-Sep-2011', $
@@ -109,14 +109,17 @@ pro burst_velocity
       displ[j] = abs(radii[n_elements(radii)-1] - radii[0])
       
     ENDELSE	
-
+    print, '         '
+    print, 'Drift: ' + string(drift[j])
+    print, 'Velocity: ' +string(vels[j])
+    print, ' '
     j = j+1
   ENDFOR
 
   wset, 2
-  pdf = histogram(drift, locations = xbin)
+  pdf = histogram(drift, binsize=1.0, locations = xbin)
   plot, xbin, pdf, $
-    xr=[4, 20], $
+    xr=[1, 20], $
     psym=10, $
     /xs, $
     xtitle = 'Drift rate (MHz/s)', $
@@ -134,14 +137,14 @@ pro burst_velocity
   wset, 4
   plot, displ, vels, $
     psym=4, $  
-    yr = [0.0 , 1.0], $
+    yr = [0.0 , 0.6], $
     /xs, $
     xtitle = 'Beam distance (Rsun)', $
     ytitle = 'Beam velocity (c)'
   
   beam_kins = list(drift, vels, displ, tsec)
   save, beam_kins, filename = 'beam_kins.sav'
-  
+  stop
 END
 
 ;------------ END MAIN PROCEDURE ------------------;

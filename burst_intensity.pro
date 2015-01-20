@@ -80,10 +80,10 @@ pro burst_intensity
     tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     
     result = linfit(tsec, bf, yfit = yfit)
-    start = [result[1]]
-	  fit = 'p[0]*x + 46.0'			
-	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
-    alldrift[j] = result[0]
+    ;start = [result[1]]
+	  ;fit = 'p[0]*x + 46.0'			
+	  ;result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+    alldrift[j] = result[1]
     
     
     result = linfit(tsec, bi, yfit = yfit)
@@ -150,7 +150,7 @@ pro burst_intensity
   ;pos_i = where(bidrift
   plot, vels, bidrift, $
       psym=4, $
-      yr = [0, -60], $
+      yr = [20, -60], $
       xr = [0.1, 0.6], $
       xtit = 'Velocity (c)', $
       ytit = 'di/dt (DN)'   
