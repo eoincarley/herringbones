@@ -33,7 +33,7 @@ pro burst_velocity
   ;-------------------------------------;
   ;			        Read data
   ;
-  readcol,'bursts_bs_hough_first.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
   readcol,'bursts_bs_hough_second.txt', btall2, bfall2, biall2, format = 'A,D,D'
   
   btall = [btall1, '-', btall2]
@@ -65,7 +65,7 @@ pro burst_velocity
     result = linfit(tsec, bf, yfit = yfit)
     
     start = [result[1]]
-    if bf[0] eq 33.25 then intersect='33.25'
+    if bf[0] lt 46.00 then intersect='33.25'
     if bf[0] eq 46.25 then intersect='46.25'
     
     

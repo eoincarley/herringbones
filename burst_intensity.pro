@@ -4,7 +4,7 @@ pro burst_intensity
   !p.charsize=1.5
   loadct, 39
   pos = [0.13, 0.1, 0.95, 0.95]
-  col_scale = 2.0
+  col_scale = 3.0
   dimen = 600
   xpos = 500
   ypos = 50
@@ -20,12 +20,12 @@ pro burst_intensity
   ;------------------------;
   ;			 Read data
   ;
-  readcol,'bursts_bs_hough_first.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
   readcol,'bursts_bs_hough_second.txt', btall2, bfall2, biall2, format = 'A,D,D'
   
-  btall = [btall1, '-', btall2]
-  bfall = [bfall1, !Values.F_NAN, bfall2]
-  biall = [biall1, !Values.F_NAN, biall2]
+  btall = btall2 ;[btall1, '-', btall2]
+  bfall = bfall2 ;[bfall1, !Values.F_NAN, bfall2]
+  biall = biall2 ;[biall1, !Values.F_NAN, biall2]
   
   indices = where(btall eq '-')
   indices = [-1, indices]
@@ -86,9 +86,15 @@ pro burst_intensity
     tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     
     result = linfit(tsec, bf, yfit = yfit)
+    
     start = [result[1]]
-	  fit = 'p[0]*x + 46.0'			
+    if bf[0] lt 46.00 then intersect='33.25'
+    if bf[0] eq 46.25 then intersect='46.25'
+    
+    
+	  fit = 'p[0]*x + '+	intersect
 	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+	  
     alldrift[j] = result[0]
     
     
@@ -138,7 +144,9 @@ pro burst_intensity
   ;-----------------------------------;
   ;			 Intensity v velocity
   ;
-  pos_i = where(bidrift ne 0)    
+  pos_k = where(bidrift ne 0.0)    
+  pos_j = where(alldrift ne 0.0)    
+  pos_i = [pos_j, pos_k]
   
   wset, 2
   plot, vels[pos_i], max_bi[pos_i], $
@@ -156,11 +164,11 @@ pro burst_intensity
       
   wset, 4
   ;pos_i = where(bidrift
-  plot, displ[pos_i], bidrift[pos_i], $
+  plot, alldrift[pos_i], bidrift[pos_i], $
       psym=4, $
       yr = [20, -60], $
-      xr = [0.1, 0.3], $
-      xtit = 'Displ (Rsun)', $
+      xr = [0, 25], $
+      xtit = 'Drift (MHz/s)', $
       ytit = 'di/dt (DN)'   
       
        
