@@ -5,10 +5,14 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   ;next frequencies. Need to do it the other way around e.g., get the first peak and trace this peak 
   ;all the way trough so I can get an array indicating individual bursts in columns
 
-  ;This version (v6) is now fucntionalised. 
-
-  ; best performance is angle1 = 180, angle2 = 200
-  loadct, 1
+  ;This version (v6) is now functionalised. 
+  
+  ; Best performance for first1 bursts is is angle1 = 200, angle2 = 225
+  ; Best performance for first2 bursts is is angle1 = a, angle2 = b
+  ; Best performance for second bursts is is angle1 = 180, angle2 = 200
+  
+  
+  loadct, 5
   !p.charsize = 1
   cd,'~/Data/22Sep2011_event/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
@@ -19,15 +23,15 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   ;f1_index = closest(freq, 80.0)
   ;f2_index = closest(freq, 45.0)
   
-       ; Region of first set of herringbones. Choose angles 190 and 210.
-       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
-       t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
-       f1_index = closest(freq,60.0)
-       f2_index = closest(freq,32.0)
+  ; Region of first set of herringbones. Choose angles 190 and 210.
+  t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+  t2_index = closest(times,anytim(file2time('20110922_104900'),/utim))
+  f1_index = closest(freq,60.0)
+  f2_index = closest(freq,32.0)
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
-  inten0 = -20
-  inten1 = 50
+  inten0 = -60
+  inten1 = 30
   data_section = data_raw[t1_index:t2_index, f1_index:f2_index]
   data_clip =  gradient(bytscl(constbacksub( data_section, /auto), inten0, inten1))
 
@@ -63,7 +67,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   t_range = ((t2_index+1.0)-t1_index)
   f_range = (f2_index-f1_index) + 1.0
   backproject = HOUGH(result, /BACKPROJECT, RHO=rho, THETA=theta, nx = t_range, ny = f_range) 
-  normal_back = smooth( backproject/max(backproject) , 3)
+  normal_back = smooth( backproject/max(backproject), 4)
 
   freq_set = freq[f1_index:f2_index]
   time_set = times[t1_index:t2_index]
@@ -117,7 +121,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
                   ; profile.
     
 
-      loadct, 9, /silent
+      loadct, 5, /silent
       wset, 4
       spectro_plot, bytscl(normal_back, 0.5, 1.0), time_set, freq_set, $
           /xs, $
@@ -143,14 +147,12 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
 
   ;-------------- PLOT ALL DATA POINTS FOUND -----------------
   
-  loadct,1
+  loadct, 5
   reverse_ct
   window, 1, xs=2400, ys=700
   spectro_plot,( bytscl(constbacksub(data_raw,/auto), inten0, inten1) ), times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
-      yticks = 5, $
-      yminor = 4, $
       yr = [freq[f1_index],freq[f2_index]], $
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
@@ -158,10 +160,10 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       charsize = 2.0
     
   set_line_color
-  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_first.sav', $
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_first1.sav', $
           description = 'This is from the first set of burst from 10:47:30 - 10:50:00.'
   FOR i=0, n_elements(freq_set)-1 do begin
-      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
+      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=4, psym=1, symsize=1
   ENDFOR
 
 

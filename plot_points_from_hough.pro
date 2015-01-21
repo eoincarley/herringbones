@@ -7,7 +7,7 @@ pro plot_points_from_hough
   cd, '~/Data/22Sep2011_event/herringbones'
   spawn,'rm -f bursts_bs_hough_first.txt'
   !p.charsize = 1.5
-  loadct, 1
+  loadct, 5
   reverse_ct
   window, 1, xs=2300, ys=800
   ;window, 2, xs=1300, ys=600
@@ -20,7 +20,7 @@ pro plot_points_from_hough
   
   ; Region of first set of herringbones. Choose angles 190 and 210.
   t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
-  t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+  t2_index = closest(times,anytim(file2time('20110922_104900'),/utim))
   f1_index = closest(freq, 60.0)
   f2_index = closest(freq, 32.0)
 
@@ -36,19 +36,17 @@ pro plot_points_from_hough
           
   finuse = freq[f1_index:f2_index]
   
-  spectro_plot, bytscl(data_bs, -20, 50) , times, freq, $
+  spectro_plot, bytscl(data_bs, -60, 30) , times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
-      yticks = 5, $
-      yminor = 4, $
       yr = [freq[f1_index], freq[f2_index]], $
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
-       
+       stop
   
   set_line_color
-  restore,'peak_time_freq_first.sav'
+  restore,'peak_time_freq_first1.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -162,8 +160,8 @@ END
 
 pro write_text, bt, bff, inten
 
-  IF file_test('bursts_bs_hough_first.txt') eq 1 THEN BEGIN
-    readcol,'bursts_bs_hough_first.txt', btprev, bffprev, intenprev,$
+  IF file_test('bursts_bs_hough_first1.txt') eq 1 THEN BEGIN
+    readcol,'bursts_bs_hough_first1.txt', btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -172,7 +170,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_bs_hough_first.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, 'bursts_bs_hough_first1.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
