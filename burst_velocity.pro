@@ -2,12 +2,13 @@ function calc_vel, tsec, yfit
 
   yfit = yfit*1e6                 ; Hz
   dens = freq2dens(yfit)
-  rads = density_to_radius(dens)
+  rads = density_to_radius(dens, /saito, fold = 5)
   result = linfit(tsec, rads)
   velocity = abs(result[1])*6.955e8  ; m/s
   velocity = [velocity/2.997e8]   ; speed of light units
   kins = list(velocity, rads)
   return, kins
+  
 END
 
 pro burst_velocity
@@ -19,7 +20,7 @@ pro burst_velocity
   !p.charsize=1.5
   loadct, 39
   pos = [0.13, 0.1, 0.95, 0.95]
-  col_scale = 2.0
+  col_scale = 3.0
   dimen = 600
   xpos = 500
   ypos = 50
@@ -34,11 +35,12 @@ pro burst_velocity
   ;			        Read data
   ;
   readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
-  readcol,'bursts_bs_hough_second.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  readcol,'bursts_bs_hough_first2.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall1, '-', btall2]
-  bfall = [bfall1, !Values.F_NAN, bfall2]
-  biall = [biall1, !Values.F_NAN, biall2]
+  btall = [btall1, '-', btall2, '-', btall3]
+  bfall = [bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
+  biall = [biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
   
   
   indices = where(btall eq '-')
@@ -47,6 +49,7 @@ pro burst_velocity
   vels = fltarr(n_elements(indices))
   displ = fltarr(n_elements(indices))
   flength = fltarr(n_elements(indices))
+  start_f = fltarr(n_elements(indices))
   
   ;-------------------------------------;
   ;
@@ -55,25 +58,22 @@ pro burst_velocity
   j = 0
   FOR i=n_elements(indices)-2, 0, -1 DO BEGIN ;backwards to plot the shortest bursts first.
 
-    bt = btall[indices[i]+1: indices[i+1]-1]
+    bt = btall[indices[i]+1: indices[i+1]-1]  ; This selects one burst.
     bf = bfall[indices[i]+1: indices[i+1]-1]
     bi = biall[indices[i]+1: indices[i+1]-1]	
-    
-    
-    
     tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
-    result = linfit(tsec, bf, yfit = yfit)
     
+    ; Do fitting
+    result = linfit(tsec, bf, yfit = yfit)
     start = [result[1]]
     if bf[0] lt 46.00 then intersect='33.25'
     if bf[0] eq 46.25 then intersect='46.25'
-    
-    
 	  fit = 'p[0]*x + '+	intersect
 	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
     
     drift[j] = result[0]
     flength[j] = bf[n_elements(bf)-1] - bf[0]
+    start_f[j] = bf[0]
     
     IF i eq n_elements(indices)-2 THEN BEGIN
     
@@ -121,41 +121,52 @@ pro burst_velocity
       radii = kins[1]
       displ[j] = radii[0] - radii[n_elements(radii)-1]
       
-        
     ENDELSE	
-    print, '         '
-    print, 'Drift: ' + string(drift[j])
-    print, 'Velocity: ' +string(vels[j])
-    print, ' '
-    
     j = j+1
   ENDFOR
 
+  ;--------------------------------;
+  ;     Drift rate histogram
+  ;
   wset, 2
   pdf = histogram(drift, binsize=1.0, locations = xbin)
   plot, xbin, pdf, $
-    xr=[1, 20], $
+    xr = [1, 20], $
+    yr = [0, 15], $
     psym=10, $
     /xs, $
     xtitle = 'Drift rate (MHz/s)', $
     ytitle='Number of occurences'
-    
    
+  ;--------------------------------;
+  ;     Velocity histogram
+  ; 
   wset, 3
-  pdf = histogram(vels, binsize=0.05, locations = xbin)
+  pdf = histogram(vels, binsize=0.04, locations = xbin)
   plot, xbin, pdf, $
     psym=10, $
     /xs, $
     xtitle = 'Velocity (c)', $
     ytitle='Number of occurences'  
-    
+  
+  ;------------------------------;
+  ;     Displacement historgram
+  ;
   wset, 4
   plot, flength, drift, $
     psym=4, $  
-    ;yr = [0.0 , 0.6], $
+    ;yr = [0.0 , 15], $
+    ;xr=[0, 0.2], $
     /xs, $
     xtitle = 'Frequency length (MHz)', $
     ytitle = 'Drift (MHz/s)'
+    
+   for i =0, n_elements(flength)-1 do begin
+    if start_f[i] lt 45 then color=245 else color=80
+    oplot, [0, flength[i]], [0, drift[i]], $
+        psym=4, $
+        color = color
+   endfor     
   
   beam_kins = list(drift, vels, displ, tsec)
   save, beam_kins, filename = 'beam_kins.sav'
@@ -163,4 +174,20 @@ pro burst_velocity
 END
 
 ;------------ END MAIN PROCEDURE ------------------;
+
+pro setup_ps, name
+  
+  set_plot,'ps'
+  !p.font=0
+  !p.charsize=1.5
+  device, filename = name, $
+          /color, $
+          /helvetica, $
+          /inches, $
+          size=7, $
+          ysize=7, $
+          /encapsulate, $
+          yoffset=5
+
+end
 
