@@ -7,7 +7,6 @@ function calc_vel, tsec, yfit
   velocity = abs(result[1])*6.955e8  ; m/s
   velocity = [velocity/2.997e8]   ; speed of light units
   kins = list(velocity, rads)
-  
   return, kins
 END
 
@@ -32,18 +31,26 @@ pro burst_velocity
   folder = '~/Data/22Sep2011_event/herringbones'
   cd, folder
   ;-------------------------------------;
-  ;			 Read data
+  ;			        Read data
   ;
-  readcol,'bursts_bs_hough.txt', btall, bfall, biall, format = 'A,D,D'
+  readcol,'bursts_bs_hough_first.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  readcol,'bursts_bs_hough_second.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  
+  btall = [btall1, '-', btall2]
+  bfall = [bfall1, !Values.F_NAN, bfall2]
+  biall = [biall1, !Values.F_NAN, biall2]
+  
+  
   indices = where(btall eq '-')
   indices = [-1, indices]
   drift = fltarr(n_elements(indices))
   vels = fltarr(n_elements(indices))
   displ = fltarr(n_elements(indices))
+  flength = fltarr(n_elements(indices))
   
   ;-------------------------------------;
   ;
-  ;		 Frequency v Time
+  ;		      Frequency v Time
   ;
   j = 0
   FOR i=n_elements(indices)-2, 0, -1 DO BEGIN ;backwards to plot the shortest bursts first.
@@ -51,16 +58,22 @@ pro burst_velocity
     bt = btall[indices[i]+1: indices[i+1]-1]
     bf = bfall[indices[i]+1: indices[i+1]-1]
     bi = biall[indices[i]+1: indices[i+1]-1]	
-    tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
+    
+    
     
     tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     result = linfit(tsec, bf, yfit = yfit)
     
-    ;start = [result[1]]
-	  ;fit = 'p[0]*x + 46.0'			
-	  ;result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+    start = [result[1]]
+    if bf[0] eq 33.25 then intersect='33.25'
+    if bf[0] eq 46.25 then intersect='46.25'
     
-    drift[j] = result[1]
+    
+	  fit = 'p[0]*x + '+	intersect
+	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+    
+    drift[j] = result[0]
+    flength[j] = bf[n_elements(bf)-1] - bf[0]
     
     IF i eq n_elements(indices)-2 THEN BEGIN
     
@@ -98,7 +111,7 @@ pro burst_velocity
       
     ENDIF ELSE BEGIN
       wset, 0
-       oplot, tsec, bf,  color=(245 - i*col_scale)
+      oplot, tsec, bf,  color=(245 - i*col_scale)
       
       wset, 1	
       oplot, tsec, yfit, color=(245 - i*col_scale)
@@ -106,13 +119,15 @@ pro burst_velocity
       kins = calc_vel(tsec, yfit)
       vels[j] = kins[0]
       radii = kins[1]
-      displ[j] = abs(radii[n_elements(radii)-1] - radii[0])
+      displ[j] = radii[0] - radii[n_elements(radii)-1]
       
+        
     ENDELSE	
     print, '         '
     print, 'Drift: ' + string(drift[j])
     print, 'Velocity: ' +string(vels[j])
     print, ' '
+    
     j = j+1
   ENDFOR
 
@@ -135,12 +150,12 @@ pro burst_velocity
     ytitle='Number of occurences'  
     
   wset, 4
-  plot, displ, vels, $
+  plot, flength, drift, $
     psym=4, $  
-    yr = [0.0 , 0.6], $
+    ;yr = [0.0 , 0.6], $
     /xs, $
-    xtitle = 'Beam distance (Rsun)', $
-    ytitle = 'Beam velocity (c)'
+    xtitle = 'Frequency length (MHz)', $
+    ytitle = 'Drift (MHz/s)'
   
   beam_kins = list(drift, vels, displ, tsec)
   save, beam_kins, filename = 'beam_kins.sav'

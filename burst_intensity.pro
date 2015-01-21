@@ -20,7 +20,13 @@ pro burst_intensity
   ;------------------------;
   ;			 Read data
   ;
-  readcol,'bursts_bs_hough.txt', btall, bfall, biall, format = 'A,D,D'
+  readcol,'bursts_bs_hough_first.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  readcol,'bursts_bs_hough_second.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  
+  btall = [btall1, '-', btall2]
+  bfall = [bfall1, !Values.F_NAN, bfall2]
+  biall = [biall1, !Values.F_NAN, biall2]
+  
   indices = where(btall eq '-')
   indices = [-1, indices]
   
@@ -80,10 +86,10 @@ pro burst_intensity
     tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     
     result = linfit(tsec, bf, yfit = yfit)
-    ;start = [result[1]]
-	  ;fit = 'p[0]*x + 46.0'			
-	  ;result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
-    alldrift[j] = result[1]
+    start = [result[1]]
+	  fit = 'p[0]*x + 46.0'			
+	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+    alldrift[j] = result[0]
     
     
     result = linfit(tsec, bi, yfit = yfit)
@@ -132,15 +138,17 @@ pro burst_intensity
   ;-----------------------------------;
   ;			 Intensity v velocity
   ;
+  pos_i = where(bidrift ne 0)    
+  
   wset, 2
-  plot, vels, max_bi, $
+  plot, vels[pos_i], max_bi[pos_i], $
       psym=4, $
       xr = [0, 0.6], $
       xtit = 'Beam velocity (c)', $
       ytit = 'Maximum intensity (DN)'
       
   wset, 3
-  plot, displ, max_bi, $
+  plot, displ[pos_i], max_bi[pos_i], $
       psym=4, $
       xr = [0.0, 0.4], $
       xtit = 'Beam displacement (Rsun)', $
@@ -148,11 +156,11 @@ pro burst_intensity
       
   wset, 4
   ;pos_i = where(bidrift
-  plot, vels, bidrift, $
+  plot, displ[pos_i], bidrift[pos_i], $
       psym=4, $
       yr = [20, -60], $
-      xr = [0.1, 0.6], $
-      xtit = 'Velocity (c)', $
+      xr = [0.1, 0.3], $
+      xtit = 'Displ (Rsun)', $
       ytit = 'di/dt (DN)'   
       
        

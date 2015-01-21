@@ -1,4 +1,4 @@
-pro plot_points_from_hough
+pro plot_points_from_hough, save_bursts = save_bursts
   ;
   ;
   ;11-Sep-2013 - Code to plot the points detected by the Hough transform
@@ -95,8 +95,8 @@ pro plot_points_from_hough
   
       ENDWHILE
 
-
-      if n_elements(btimes) gt 3 then begin
+      negative_check = btimes[n_elements(btimes)-1] - btimes[0]
+      if n_elements(btimes) gt 3 and negative_check gt 0.0 then begin
         btimes = btimes[1: n_elements(btimes)-1]
         bf = bf[1: n_elements(bf)-1]
         tindex = btimes
@@ -104,10 +104,10 @@ pro plot_points_from_hough
         ;---------------------------------------------;
         ;       Manually choose stopping frequency
         ;
-        store = ' '
+        store = 'y'
         READ, store, prompt = 'Store? (y/n)'
         if store ne 'n' then begin
-            manual = ' '
+            manual = 'n'
             READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
             if manual eq 'y' then begin
                 ;
@@ -133,7 +133,11 @@ pro plot_points_from_hough
             bt = btimes
             bff = bf
             inten = prof
-            write_text, bt, bff, inten
+            
+            calc_drift, bt, bff
+            
+            
+            if keyword_set(save_bursts) then write_text, bt, bff, inten
         endif
       endif
         
@@ -177,3 +181,22 @@ pro get_bg, in, times, freq, $
 
 
 END
+
+pro calc_drift, bt, bf
+
+    tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
+    result = linfit(tsec, bf, yfit = yfit)
+    
+    start = [result[1]]
+    if bf[0] eq 33.25 then intersect='33.25'
+    if bf[0] eq 46.25 then intersect='46.25'
+    
+    
+	  fit = 'p[0]*x + '+	intersect
+	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
+    
+    drift = result[0]
+    print, drift
+    xyouts, bt[n_elements(bf)-1], bf[n_elements(bf)-1], string(drift, format='(f4.1)'), /data, color=1, align=0.5, charsize=1.3
+    
+END    
