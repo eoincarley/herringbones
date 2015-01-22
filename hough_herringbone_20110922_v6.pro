@@ -24,20 +24,20 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   ;f2_index = closest(freq, 45.0)
   
   ; Region of first1 set of herringbones.
-  ;t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
-  ;t2_index = closest(times,anytim(file2time('20110922_104900'),/utim))
+  t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+  t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
+  f1_index = closest(freq, 60.0)
+  f2_index = closest(freq, 33.0)
+
+  ; Region of first2 set of herringbones.
+  ;t1_index = closest(times,anytim(file2time('20110922_104900'),/utim))
+  ;t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
   ;f1_index = closest(freq, 60.0)
   ;f2_index = closest(freq, 32.0)
 
-  ; Region of first2 set of herringbones.
-  t1_index = closest(times,anytim(file2time('20110922_104900'),/utim))
-  t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
-  f1_index = closest(freq, 60.0)
-  f2_index = closest(freq, 32.0)
-
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
-  inten0 = -80  ;-60
+  inten0 = -20  ;-60
   inten1 = 20   ;30 
   data_section = data_raw[t1_index:t2_index, f1_index:f2_index]
   data_clip =  gradient(bytscl(constbacksub( data_section, /auto), inten0, inten1))
@@ -167,8 +167,8 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       charsize = 2.0
     
   set_line_color
-  if keyword_set(save_points) then save, peak_time_freq, filename='peak_time_freq_first2.sav', $
-          description = 'This is from the first set of burst from 10:47:30 - 10:50:00.'
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_tf_first_master_positive.sav', $
+          description = 'This is from the first set of burst from 10:47:30 - 10:50:30.'
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=4, psym=1, symsize=1
   ENDFOR

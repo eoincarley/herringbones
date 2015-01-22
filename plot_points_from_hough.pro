@@ -23,8 +23,8 @@ pro plot_points_from_hough
   ;f1_index = closest(freq, 60.0)
   ;f2_index = closest(freq, 32.0)
 
-  t1_index = closest(times,anytim(file2time('20110922_104900'),/utim))
-  t2_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+  t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+  t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
   f1_index = closest(freq, 60.0)
   f2_index = closest(freq, 32.0)
   
@@ -38,17 +38,17 @@ pro plot_points_from_hough
           
   finuse = freq[f1_index:f2_index]
   
-  spectro_plot, bytscl(data_bs, -60, 30) , times, freq, $
+  spectro_plot, bytscl(data_bs, -20, 20) , times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
       yr = [freq[f1_index], freq[f2_index]], $
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
-       stop
+       
   
   set_line_color
-  restore,'peak_time_freq_first2.sav'
+  restore,'peak_tf_first_master_positive.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -65,12 +65,14 @@ pro plot_points_from_hough
   
   ft1_index = where(peak_time_freq[nfreqs - 3, *] gt 0.0) ;start at second frequency column. First does not go through all points.
   ft1 = peak_time_freq[nfreqs - 3, ft1_index]
-
+  plotsym, 0, /fill
   FOR j=1, n_elements(ft1)-1 DO BEGIN
     comp_f = ft1[0]
     comp_t = ft1[j]
  
       i = nfreqs - 3
+      
+      
       WHILE i gt 1 DO BEGIN 
   
           ft_index = where(peak_time_freq[i, *] gt 0.0)
@@ -79,7 +81,6 @@ pro plot_points_from_hough
           f = ft[0]
           index_t = closest(ft, comp_t)
           t = ft[index_t]
-          
           ;also put a check in here. If intensity of found point is within 1 stdev of nominal back ground then i=0
           sample0 = closest(times, t)    
           sample1 = closest(freq, f) 
@@ -91,15 +92,16 @@ pro plot_points_from_hough
           ;if intensity le (backg_sample + 0.5*sig_sample) then i=0
 
           
-          IF (comp_t - t) gt 1.0 or (comp_t - t) lt -1.0 THEN BEGIN
+          IF (comp_t - t) gt 0.5 or (comp_t - t) lt -1.0 THEN BEGIN
             i=0
           ENDIF ELSE BEGIN
             set_line_color
             btimes = [btimes,  t]
+            
             bf = [bf, f]
             
-            plots, comp_f, comp_t, color=4, symsize=0.5, psym=3
-            plots, t, f, color=4, symsize=0.5, psym=3
+            plots, comp_f, comp_t, color=4, symsize=0.5, psym=8
+            plots, t, f, color=4, symsize=0.5, psym=8
           ENDELSE
     
           comp_f = f
@@ -108,7 +110,7 @@ pro plot_points_from_hough
   
       ENDWHILE
 
-
+    
       if n_elements(btimes) gt 3 then begin
           btimes = btimes[1: n_elements(btimes)-1]
           bf = bf[1: n_elements(bf)-1]
@@ -132,7 +134,7 @@ pro plot_points_from_hough
                   user_stop_f = closest(bf, user_f)
                   bf = bf[ 0:user_stop_f ]
                   btimes = btimes[ 0:user_stop_f ]
-                  plots, btimes, bf, color=3, symsize=0.5, psym=3
+                  plots, btimes, bf, color=3, symsize=0.4, psym=8
               endif        
               
               ;---------------------------------------------;
@@ -162,8 +164,8 @@ END
 
 pro write_text, bt, bff, inten
 
-  IF file_test('bursts_bs_hough_first2.txt') eq 1 THEN BEGIN
-    readcol,'bursts_bs_hough_first2.txt', btprev, bffprev, intenprev,$
+  IF file_test('bursts_ft_master_positive.txt') eq 1 THEN BEGIN
+    readcol,'bursts_ft_master_positive.txt', btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -172,7 +174,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_bs_hough_first2.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, 'bursts_ft_master_positive.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
