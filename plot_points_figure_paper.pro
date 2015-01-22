@@ -4,7 +4,7 @@ pro plot_points_figure_paper
   !p.charsize = 1.5
   loadct, 5
   reverse_ct
-  window, 1, xs=2300, ys=800
+  window, 3, xs=1300, ys=800
 
 
   ;-------------------------------------;
@@ -20,7 +20,7 @@ pro plot_points_figure_paper
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
   
-  spectro_plot, bytscl(data_bs, -20, 20) , times, freq, $
+  spectro_plot, bytscl(data_bs, -40, 40) , times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
       yticks = 5, $
@@ -34,14 +34,15 @@ pro plot_points_figure_paper
   ;-------------------------------------;
   ;			     Read burst data
   ;
-  readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
-  readcol,'bursts_bs_hough_first2.txt', btall2, bfall2, biall2, format = 'A,D,D'
-  readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
+  ;readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  ;readcol,'bursts_bs_hough_first2.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  ;readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall1, '-', btall2, '-', btall3]
-  bfall = [bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
-  biall = [biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
+  ;btall = [btall1, '-', btall2, '-', btall3]
+  ;bfall = [bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
+  ;biall = [biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
 
+  readcol, 'bursts_ft_first_master_reverse.txt', btall, bfall, biall, format = 'A,D,D'
   indices = where(btall eq '-')
   indices = [-1, indices]
   

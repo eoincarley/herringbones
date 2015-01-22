@@ -7,7 +7,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
   cd, '~/Data/22Sep2011_event/herringbones'
   ;spawn,'rm -f bursts_bs_hough_second.txt'
   !p.charsize = 1.5
-  loadct, 1
+  loadct, 5
   reverse_ct
   window, 1, xs=2300, ys=800
 
@@ -15,7 +15,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
   t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
   t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
   f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 45.0)
+  f2_index = closest(freq, 41.0)
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
@@ -25,7 +25,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
           
   finuse = freq[f1_index:f2_index]
   
-  spectro_plot, bytscl(data_bs, -20, 50) , times, freq, $
+  spectro_plot, bytscl(data_bs, -30, 40) , times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
       yticks = 5, $
@@ -34,10 +34,9 @@ pro plot_points_from_hough, save_bursts = save_bursts
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
-  stop 
   
   set_line_color
-  restore,'peak_time_freq_second.sav'
+  restore,'peak_tf_second_master_reverse.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -75,7 +74,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
           backg_sample = out_bg[samplef_i]
           sig_sample = sig[samplef_i]
           ;print, intensity, backg_sample, sig_sample
-          if intensity le (backg_sample + 0.5*sig_sample) then i=0
+          ;if intensity le (backg_sample + 0.3*sig_sample) then i=0
 
           
           If abs(comp_t - t) gt 0.5 THEN BEGIN
@@ -85,8 +84,9 @@ pro plot_points_from_hough, save_bursts = save_bursts
             btimes = [btimes,  t]
             bf = [bf, f]
             
-            plots, comp_f, comp_t, color=4, symsize=0.5, psym=3
-            plots, t, f, color=4, symsize=0.5, psym=3
+            plotsym, 0, /fill
+            ;plots, comp_f, comp_t, color=4, symsize=0.5, psym=8
+            plots, t, f, color=4, symsize=0.5, psym=8
           ENDELSE
     
           comp_f = f
@@ -118,7 +118,8 @@ pro plot_points_from_hough, save_bursts = save_bursts
                 user_stop_f = closest(bf, user_f)
                 bf = bf[ 0:user_stop_f ]
                 btimes = btimes[ 0:user_stop_f ]
-                plots, btimes, bf, color=3, symsize=0.5, psym=3
+                plotsym, 0, /fill
+                plots, btimes, bf, color=3, symsize=0.4, psym=8
             endif        
   
             ;---------------------------------------------;
@@ -134,7 +135,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
             bff = bf
             inten = prof
             
-            calc_drift, bt, bff
+            ;calc_drift, bt, bff
             
             
             if keyword_set(save_bursts) then write_text, bt, bff, inten
@@ -152,8 +153,8 @@ END
 
 pro write_text, bt, bff, inten
 
-  IF file_test('bursts_bs_hough_second.txt') eq 1 THEN BEGIN
-    readcol,'bursts_bs_hough_second.txt', btprev, bffprev, intenprev,$
+  IF file_test('bursts_tf_second_master_reverse.txt') eq 1 THEN BEGIN
+    readcol,'bursts_tf_second_master_reverse.txt', btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -162,7 +163,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_bs_hough_second.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, 'bursts_tf_second_master_reverse.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
@@ -173,7 +174,7 @@ pro get_bg, in, times, freq, $
   index0 = closest(times, anytim(file2time('20110922_104730'),/utim))
   index1 = closest(times, anytim(file2time('20110922_104800'),/utim))
   index2 = closest(freq, 80.0)
-  index3 = closest(freq, 45.0)
+  index3 = closest(freq, 41.0)
 
   in = in[index0:index1, index2:index3]
   out = average(in, 2)

@@ -8,7 +8,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   ;This version (v6) is now fucntionalised. 
 
   ; best performance is angle1 = 180, angle2 = 200
-  loadct, 1
+  loadct, 5
   !p.charsize = 1
   cd,'~/Data/22Sep2011_event/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
@@ -17,7 +17,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
   t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
   t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
   f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 45.0)
+  f2_index = closest(freq, 42.0)
   
       ; Region of first set of herringbones. Choose angles 190 and 210.
       ; t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
@@ -26,10 +26,11 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       ; f2_index = closest(freq,35.0)
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
-  inten0 = -20
-  inten1 = 50
-  data_section = data_raw[t1_index:t2_index, f1_index:f2_index]
-  data_clip =  gradient(bytscl(constbacksub( data_section, /auto), inten0, inten1))
+  inten0 = -40
+  inten1 = 40
+  data_bs = constbacksub(data_raw, /auto)
+  data_section = data_bs[t1_index:t2_index, f1_index:f2_index]
+  data_clip =  gradient(bytscl(data_section, inten0, inten1))
 
   theta1 = angle1*!dtor
   theta2 = angle2*!dtor
@@ -143,7 +144,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
 
   ;-------------- PLOT ALL DATA POINTS FOUND -----------------
   
-  loadct,1
+  loadct, 5
   reverse_ct
   window, 1, xs=2400, ys=700
   spectro_plot,( bytscl(constbacksub(data_raw,/auto), inten0, inten1) ), times, freq, $
@@ -158,10 +159,13 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       charsize = 2.0
     
   set_line_color
+  plotsym, 0, /fill
   cd,'~/Data/22Sep2011_event/herringbones'
   if keyword_set(save_points) then save, peak_time_freq, filename='peak_tf_second_master_reverse.sav'
   FOR i=0, n_elements(freq_set)-1 do begin
-      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=3, psym=1, symsize=1
+      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=4, psym=8, symsize=0.5
+      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=0, psym=8, symsize=0.4
+      
   ENDFOR
 
 
