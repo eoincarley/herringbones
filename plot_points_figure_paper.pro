@@ -2,7 +2,7 @@ pro plot_points_figure_paper
 
   cd, '~/Data/22Sep2011_event/herringbones'
   !p.charsize = 1.5
-  loadct, 1
+  loadct, 5
   reverse_ct
   window, 1, xs=2300, ys=800
 
@@ -20,7 +20,7 @@ pro plot_points_figure_paper
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
   
-  spectro_plot, bytscl(data_bs, -5, 50) , times, freq, $
+  spectro_plot, bytscl(data_bs, -20, 20) , times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
       yticks = 5, $
@@ -64,7 +64,7 @@ pro plot_points_figure_paper
         bf = bfall[indices[i]+1: indices[i+1]-1]
         bi = biall[indices[i]+1: indices[i+1]-1]	
     
-        oplot, bt, bf, psym = 8, symsize=0.4, color=4
+        oplot, bt, bf, psym = 8, symsize=0.4, color=10
            
   ENDFOR
 
