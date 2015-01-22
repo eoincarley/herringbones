@@ -22,7 +22,7 @@ pro plot_points_from_hough
   ;t2_index = closest(times,anytim(file2time('20110922_104900'),/utim))
   ;f1_index = closest(freq, 60.0)
   ;f2_index = closest(freq, 32.0)
-
+  
   t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
   t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
   f1_index = closest(freq, 60.0)
@@ -48,7 +48,7 @@ pro plot_points_from_hough
        
   
   set_line_color
-  restore,'peak_tf_first_master_positive.sav'
+  restore,'peak_tf_first_master_reverse.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -164,8 +164,8 @@ END
 
 pro write_text, bt, bff, inten
 
-  IF file_test('bursts_ft_master_positive.txt') eq 1 THEN BEGIN
-    readcol,'bursts_ft_master_positive.txt', btprev, bffprev, intenprev,$
+  IF file_test('bursts_ft_first_master_reverse.txt') eq 1 THEN BEGIN
+    readcol,'bursts_ft_first_master_reverse.txt', btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -174,7 +174,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_ft_master_positive.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, 'bursts_ft_first_master_reverse.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 

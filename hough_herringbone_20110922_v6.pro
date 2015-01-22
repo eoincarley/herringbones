@@ -7,9 +7,8 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
 
   ;This version (v6) is now functionalised. 
   
-  ; Best performance for first1 bursts is is angle1 = 200, angle2 = 225
-  ; Best performance for first2 bursts is is angle1 = 195, angle2 = 215
-  ; Best performance for second bursts is is angle1 = 180, angle2 = 200
+  ; Best performance for first1 bursts is is angle1 = 185, angle2 = 215
+
   
   
   loadct, 5
@@ -167,7 +166,7 @@ pro hough_herringbone_20110922_v6, angle1, angle2, normal_back, $
       charsize = 2.0
     
   set_line_color
-  if keyword_set(save_points) then save, peak_time_freq, filename='peak_tf_first_master_positive.sav', $
+  if keyword_set(save_points) then save, peak_time_freq, filename='peak_tf_first_master_reverse.sav', $
           description = 'This is from the first set of burst from 10:47:30 - 10:50:30.'
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=4, psym=1, symsize=1
