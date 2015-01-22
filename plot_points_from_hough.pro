@@ -5,7 +5,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
   ;
   ;
   cd, '~/Data/22Sep2011_event/herringbones'
-  spawn,'rm -f bursts_bs_hough_second.txt'
+  ;spawn,'rm -f bursts_bs_hough_second.txt'
   !p.charsize = 1.5
   loadct, 1
   reverse_ct
@@ -34,7 +34,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
-    
+  stop 
   
   set_line_color
   restore,'peak_time_freq_second.sav'

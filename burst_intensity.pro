@@ -4,18 +4,17 @@ pro burst_intensity
   !p.charsize = 1.5
   !p.charthick = 1.5
   loadct, 39
-  reverse_ct
   pos = [0.13, 0.1, 0.95, 0.95]
   col_scale = 3.0
   dimen = 600
   xpos = 500
   ypos = 50
-  window, 0, xs=dimen, ys=dimen, xpos = xpos, ypos = ypos
-  window, 1, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos
-  window, 2, xs=dimen, ys=dimen, xpos = xpos, ypos = ypos + 1.0*dimen
-  window, 3, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos + 1.0*dimen
-  window, 4, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos 
-  window, 5, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos + 1.0*dimen
+  ;window, 0, xs=dimen, ys=dimen, xpos = xpos, ypos = ypos
+  ;window, 1, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos
+  ;window, 2, xs=dimen, ys=dimen, xpos = xpos, ypos = ypos + 1.0*dimen
+  ;window, 3, xs=dimen, ys=dimen, xpos = xpos + 1.0*dimen, ypos = ypos + 1.0*dimen
+  ;window, 4, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos 
+  ;window, 5, xs=dimen, ys=dimen, xpos = xpos + 2.0*dimen, ypos = ypos + 1.0*dimen
   folder = '~/Data/22Sep2011_event/herringbones'
   cd, folder
   
@@ -41,40 +40,42 @@ pro burst_intensity
   ;-----------------------------------;
   ;			 First intensity v time
   ;
+  setup_ps, 'figures/freq_inten_data.ps'
+      FOR i=n_elements(indices)-2, 0, -1 DO BEGIN
 
-  FOR i=n_elements(indices)-2, 0, -1 DO BEGIN
-
-    bt = btall[indices[i]+1: indices[i+1]-1]
-    bf = bfall[indices[i]+1: indices[i+1]-1]
-    bi = biall[indices[i]+1: indices[i+1]-1]
-    tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
+        bt = btall[indices[i]+1: indices[i+1]-1]
+        bf = bfall[indices[i]+1: indices[i+1]-1]
+        bi = biall[indices[i]+1: indices[i+1]-1]
+        tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     
-    IF i eq n_elements(indices)-2 THEN BEGIN
+        IF i eq n_elements(indices)-2 THEN BEGIN
     
-      wset, 5
-      plot, bf, bi, $
-        psym=1, $
-        xr=[45, 80], $
-        yr=[0, 50], $
-        position=pos, $
-        /normal, $
-        title='Back-sub Herringbones 22-Sep-2011', $
-        xtitle='Frequency (MHz)', $
-        ytitle='Intensity'       
+          ;wset, 5
+          plot, bf, bi, $
+            psym=1, $
+            xr=[32, 80], $
+            yr=[0, 55], $
+            /xs, $
+            /ys, $
+            position=pos, $
+            /normal, $
+            xtitle='Frequency (MHz)', $
+            ytitle='Intensity (DNs)'       
      
-      oplot, bf, bi, color=(250), psym=1
-      oplot, bf, bi, color=(250) 
+          oplot, bf, bi, color = i*col_scale, psym=1
+          oplot, bf, bi, color = i*col_scale 
       
-    ENDIF ELSE BEGIN	
-    
-      wset,5
+        ENDIF ELSE BEGIN	
   
-      oplot, bf, bi, color = (245 - i*col_scale), psym=1
-      oplot, bf, bi, color = (245 - i*col_scale)
+          oplot, bf, bi, color = i*col_scale, psym=1
+          oplot, bf, bi, color = i*col_scale
       
-    ENDELSE		
+        ENDELSE		
 
-  ENDFOR	
+      ENDFOR	
+  device, /close
+  
+  set_plot, 'x'
   ;-----------------------------------;
   ;			 First intensity v time
   ;
@@ -82,72 +83,91 @@ pro burst_intensity
   bidrift = fltarr(n_elements(indices))
   start_f = fltarr(n_elements(indices))
   
-  j=0
-  FOR i=n_elements(indices)-2, 0, -1 DO BEGIN
-
-    bt = btall[indices[i]+1: indices[i+1]-1]
-    bf = bfall[indices[i]+1: indices[i+1]-1]
-    bi = biall[indices[i]+1: indices[i+1]-1]
-    tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
+  setup_ps, 'figures/inten_time_data.ps'
+      j=0
+      FOR i=n_elements(indices)-2, 0, -1 DO BEGIN
     
-    result = linfit(tsec, bf, yfit = yfit)
+        bt = btall[indices[i]+1: indices[i+1]-1]
+        bf = bfall[indices[i]+1: indices[i+1]-1]
+        bi = biall[indices[i]+1: indices[i+1]-1]
+        tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     
-    start = [result[1]]
-    if bf[0] lt 46.00 then intersect='33.25'
-    if bf[0] eq 46.25 then intersect='46.25'
+          IF i eq n_elements(indices)-2 THEN BEGIN
     
-    
-	  fit = 'p[0]*x + '+	intersect
-	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
-	  
-    alldrift[j] = result[0]
-    
-    result = linfit(tsec, bi, yfit = yfit)
-    bidrift[j] = result[1];max(bi)
-    start_f[j] = bf[0]
-    
-    IF i eq n_elements(indices)-2 THEN BEGIN
-    
-      wset, 0
-      plot, tsec, bi, $
-        psym=1, $
-        xr=[0, 3], $
-        yr=[0, 50], $
-        position=pos, $
-        /normal, $
-        title='Back-sub Herringbones 22-Sep-2011', $
-        xtitle='Time (s)', $
-        ytitle='Intensity'
+       
+            plot, tsec, bi, $
+                psym=1, $
+                xr=[0, 3], $
+                yr=[0, 55], $
+                /ys, $
+                position=pos, $
+                /normal, $
+                xtitle='Time (s)', $
+                ytitle='Intensity (DNs)'
         
-      max_bi[j] = max(bi)  
-      oplot, tsec, bi, color=(250), psym=1
-      oplot, tsec, bi, color=(250)
+            max_bi[j] = max(bi)  
+            oplot, tsec, bi, color = i*col_scale, psym=1
+            oplot, tsec, bi, color = i*col_scale
+        
       
-      wset, 1
-      plot, tsec, yfit, $
-        xr=[0, 3], $
-        yr=[0, 50], $
-        position=pos, $
-        /normal, $
-        title='Back-sub Herringbones 22-Sep-2011', $
-        xtitle='Time (s)', $
-        ytitle='Intensity'
+          ENDIF ELSE BEGIN
       
-    ENDIF ELSE BEGIN	
+            max_bi[j] = max(bi) 
+            oplot, tsec, bi, color = i*col_scale, psym=1
+            oplot, tsec, bi, color = i*col_scale
+          ENDELSE
+          j = j+1
+      ENDFOR  
+  device, /close
+
+  ;set_plot, 'x'
+  
+  setup_ps, 'figures/inten_time_fits.ps'
+    j=0
+    FOR i=n_elements(indices)-2, 0, -1 DO BEGIN  
     
-      wset,0
-      max_bi[j] = max(bi) 
-      oplot, tsec, bi, color = (245 - i*col_scale), psym=1
-      oplot, tsec, bi, color = (245 - i*col_scale)
+        bt = btall[indices[i]+1: indices[i+1]-1]
+        bf = bfall[indices[i]+1: indices[i+1]-1]
+        bi = biall[indices[i]+1: indices[i+1]-1]
+        tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
+    
+        result = linfit(tsec, bi, yfit = yfit)
+        start = [result[1]]
+        if bf[0] lt 46.00 then intersect='33.25'
+        if bf[0] eq 46.25 then intersect='46.25'
+        fit = 'p[0]*x + '+	intersect
+        result = mpfitexpr(fit, tsec , bi, err, yfit=yfit, start)
+        alldrift[j] = result[0]
+        result = linfit(tsec, bi, yfit = yfit)
+        bidrift[j] = result[1];max(bi)
+        start_f[j] = bf[0]
+    
+        IF i eq n_elements(indices)-2 THEN BEGIN
+          plot, tsec, yfit, $
+            xr=[0, 3], $
+            yr=[0, 50], $
+            position=pos, $
+            /normal, $
+            xtitle='Time (s)', $
+            ytitle='Intensity (DNs)'
       
-      wset, 1
-      oplot, tsec, yfit, color = (245 - i*col_scale)
-    ENDELSE		
-    j = j+1
-  ENDFOR	
+        ENDIF ELSE BEGIN	
+    
+          oplot, tsec, yfit, color = i*col_scale
+      
+        ENDELSE
+  
+      j = j+1
+    ENDFOR	
+  device, /close
+ 
+  
+  bidrift = bidrift[where(bidrift ne 0.0)]
+  alldrift = alldrift[where(alldrift ne 0.0)]
+  start_f = start_f[where(start_f ne 0.0)]
+  
   
   loadct, 39
-  reverse_ct
   ;-----------------------------------;
   ;			 Intensity v Velocity
   ;
@@ -155,67 +175,82 @@ pro burst_intensity
   pos_j = where(alldrift ne 0.0)    
   pos_i = [pos_j, pos_k]
   
-  wset, 2
-  plotsym, 0, /fill 
-  plot, [0, vels], [0, max_bi], $
-      psym=8, $
-      xr = [0, 0.6], $
-      xtit = 'Beam velocity (c)', $
-      ytit = 'Maximum intensity (DN)'
-      
-  set_line_color    
-  for i =0, n_elements(vels)-1 do begin
-    if start_f[i] lt 45 then color=3 else color=5    
-      oplot, [0, vels[i]], [0, max_bi[i]], $
+  ;wset, 2
+  setup_ps, 'figures/scatter_vels_maxi.ps'
+    plotsym, 0, /fill 
+    plot, [vels], [max_bi], $
         psym=8, $
-        color = color
-  endfor    
+        xr = [0, 0.6], $
+        xtit = 'Beam velocity (c)', $
+        ytit = 'Maximum intensity (DN)'
       
+    set_line_color    
+    for i =0, n_elements(vels)-1 do begin
+      if start_f[i] lt 45 then color=3 else color=5    
+      oplot, [vels[i]], [max_bi[i]], $
+          psym=8, $
+          color = color
+    endfor    
+  device, /close    
     
   loadct, 39
-  reverse_ct
   ;-----------------------------------;
   ;			 Intensity v Displacement
   ;    
-  wset, 3
-  plot, [0, displ], [0, max_bi], $
-      psym=8, $
-      xr = [0.0, 0.2], $
-      xtit = 'Beam displacement (Rsun)', $
-      ytit = 'Maximum intensity (DN)', $
-      color = 255
   
-  set_line_color     
-  for i =0, n_elements(displ)-1 do begin
-    if start_f[i] lt 45 then color=3 else color=5    
-      oplot, [0, displ[i]], [0, max_bi[i]], $
+  setup_ps, 'figures/scatter_displ_maxi.ps'
+    plot, [displ], [max_bi], $
         psym=8, $
-        color = color
-  endfor
+        xr = [0.0, 0.35], $
+        xtit = 'Beam displacement (Rsun)', $
+        ytit = 'Maximum intensity (DN)'
+  
+    set_line_color     
+    for i =0, n_elements(displ)-1 do begin
+      if start_f[i] lt 45 then color=3 else color=5    
+        oplot, [displ[i]], [max_bi[i]], $
+          psym=8, $
+          color = color
+    endfor
+  device, /close
   
   loadct, 39
-  reverse_ct
   ;-----------------------------------------;      
   ;     Frequency drift v Intensity drift
   ;    
-  wset, 4
-  ;pos_i = where(bidrift
-  plot, [0, alldrift[0]], [0, bidrift[0]], $
-        psym=8, $
-        yr = [-40, 10], $
-        xr = [0, 20], $
-        xtit = 'Drift (MHz/s)', $
-        ytit = 'di/dt (DN)', $
-        color = 255
+  setup_ps, 'figures/scatter_fdrift_idrift.ps'
+    plot, [alldrift[0]], [bidrift[0]], $
+          psym=8, $
+          xr = [0, 20], $
+          yr = [-25, 5], $
+          xtit = 'Drift (MHz/s)', $
+          ytit = 'di/dt (DN)'
         
-  set_line_color         
-  for i =0, n_elements(alldrift)-1 do begin
-    if start_f[i] lt 45 then color=3 else color=5
-    oplot, [0, alldrift[i]], [0, bidrift[i]], $
-        psym=8, $
-        color = color
-  endfor      
-       
-stop
+    set_line_color         
+    for i =0, n_elements(alldrift)-1 do begin
+      if start_f[i] lt 45 then color=3 else color=5
+      oplot, [drift[i]], [bidrift[i]], $
+          psym=8, $
+          color=color
+          
+    endfor      
+   device, /close   
+   set_plot, 'x'
 
 END
+
+pro setup_ps, name
+  
+  set_plot,'ps'
+  !p.font=0
+  !p.charsize=1.5
+  device, filename = name, $
+          /color, $
+          /helvetica, $
+          /inches, $
+          xsize=7, $
+          ysize=7, $
+          /encapsulate, $
+          yoffset=5
+
+end
