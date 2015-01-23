@@ -42,7 +42,14 @@ pro plot_points_figure_paper
   ;bfall = [bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
   ;biall = [biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
 
-  readcol, 'bursts_ft_first_master_reverse.txt', btall, bfall, biall, format = 'A,D,D'
+  readcol, 'bursts_ft_first_master_reverse.txt', btall0, bfall0, biall0, format = 'A,D,D'
+  readcol, 'bursts_ft_second_master_reverse.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  
+  btall = [btall0, '-', btall1, '-'] ;, btall3]
+  bfall = [bfall0, !Values.F_NAN, bfall1] ;, !Values.F_NAN, bfall3]
+  biall = [biall0, !Values.F_NAN, biall1] ;, !Values.F_NAN, biall3]
+
+  
   indices = where(btall eq '-')
   indices = [-1, indices]
   

@@ -9,13 +9,12 @@ pro plot_points_from_hough, save_bursts = save_bursts
   !p.charsize = 1.5
   loadct, 5
   reverse_ct
-  window, 1, xs=2300, ys=800
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
   t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
   t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
   f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 41.0)
+  f2_index = closest(freq, 42.0)
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
@@ -25,17 +24,9 @@ pro plot_points_from_hough, save_bursts = save_bursts
           
   finuse = freq[f1_index:f2_index]
   
-  spectro_plot, bytscl(data_bs, -30, 40) , times, freq, $
-      /ys, $
-      ytitle = '!6Frequency [MHz]', $
-      yticks = 5, $
-      yminor = 4, $
-      yr = [freq[f1_index], freq[f2_index]], $
-      xrange = [times[t1_index],times[t2_index]], $
-      /xs, $
-      xtitle = xtit
+  data_displ = bytscl(data_bs, -30, 40)
+  plot_herb = 'spectro_plot, data_displ , times, freq, /ys, ytitle = "Frequency [MHz]", ticks = 5, yminor = 4, yr = [freq[f1_index], freq[f2_index]], xrange = [times[t1_index],times[t2_index]], /xs, xtitle = xtit'
   
-  set_line_color
   restore,'peak_tf_second_master_reverse.sav'
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
@@ -50,9 +41,15 @@ pro plot_points_from_hough, save_bursts = save_bursts
   
   ft1_index = where(peak_time_freq[nfreqs - 2, *] gt 0.0) ;start at second frequency column. First does not go through all points.
   ft1 = peak_time_freq[nfreqs - 2, ft1_index]
+  
 
 
   FOR j=1, n_elements(ft1)-1 DO BEGIN
+    loadct, 5, /silent
+    reverse_ct
+    window, 1, xs=2300, ys=800          
+    void = execute(plot_herb)
+  
     comp_f = ft1[0]
     comp_t = ft1[j]
  
@@ -80,12 +77,11 @@ pro plot_points_from_hough, save_bursts = save_bursts
           If abs(comp_t - t) gt 0.5 THEN BEGIN
             i=0
           ENDIF ELSE BEGIN
-            set_line_color
             btimes = [btimes,  t]
             bf = [bf, f]
-            
+            wset,1
             plotsym, 0, /fill
-            ;plots, comp_f, comp_t, color=4, symsize=0.5, psym=8
+            ;plots, comp_f, comp_t, color=4, symsize=0.5, psym=4
             plots, t, f, color=4, symsize=0.5, psym=8
           ENDELSE
     
@@ -94,58 +90,70 @@ pro plot_points_from_hough, save_bursts = save_bursts
           i=i-1
   
       ENDWHILE
-
+     
       negative_check = btimes[n_elements(btimes)-1] - btimes[0]
-      if n_elements(btimes) gt 3 and negative_check gt 0.0 then begin
+      if n_elements(btimes) gt 5 and negative_check gt 0.0 then begin
         btimes = btimes[1: n_elements(btimes)-1]
         bf = bf[1: n_elements(bf)-1]
         tindex = btimes
         findex = bf
         ;---------------------------------------------;
+        ;				        Get profile
+        ;
+        FOR i=0, n_elements(btimes)-1 DO BEGIN
+          tindex[i] = closest(times, btimes[i])
+          findex[i] = closest(freq, bf[i])
+        ENDFOR
+        inten = interpolate(data_bs, tindex, findex) 
+
+        window, 3, ysize=500, xpos = 400, ypos=800
+        loadct, 0
+        plot, bf, smooth(inten, 5), /xs, yr = [0, 65], /ys
+        five = fltarr(n_elements(bf))
+        five[*] = 7.
+        oplot, bf, five, linestyle=2
+        
+  
+        ;---------------------------------------------;
         ;       Manually choose stopping frequency
         ;
-        store = 'y'
-        READ, store, prompt = 'Store? (y/n)'
-        if store ne 'n' then begin
-            manual = 'n'
-            READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
-            if manual eq 'y' then begin
-                ;
-                print,'Choose stop frequency: '
-                cursor, user_t, user_f, /data
-                print,'Manual stop frequency: '+string(user_f)
-                ;read, user_f, 'Enter stop frequency:'
-                user_stop_f = closest(bf, user_f)
-                bf = bf[ 0:user_stop_f ]
-                btimes = btimes[ 0:user_stop_f ]
-                plotsym, 0, /fill
-                plots, btimes, bf, color=3, symsize=0.4, psym=8
-            endif        
-  
-            ;---------------------------------------------;
-            ;				        Get profile
-            ;
-            FOR i=0, n_elements(btimes)-1 DO BEGIN
-              tindex[i] = closest(times, btimes[i])
-              findex[i] = closest(freq, bf[i])
-            ENDFOR
-            prof = interpolate(data_bs, tindex, findex) 
+        print, 'Click above 60 to store burst.'
+        cursor, x, y, /data
+        if y gt 60.0 then begin
 
-            bt = btimes
-            bff = bf
-            inten = prof
+            ;manual = 'n'
+            ;READ, manual, prompt = 'Enter stop frequency manually? (y/n)'
+            ;if manual eq 'y' then begin
+            ;
+            y=0
+            wait,0.5
+            print,'Choose stop frequency: '
+            cursor, user_f, user_I, /data
+            print,'Manual stop frequency: '+string(user_f)
             
-            ;calc_drift, bt, bff
+
+            user_stop_f = closest(bf, user_f)
+            bf = bf[ 0:user_stop_f ]
+            btimes = btimes[ 0:user_stop_f ]
             
-            
-            if keyword_set(save_bursts) then write_text, bt, bff, inten
-        endif
+            loadct, 5, /silent
+            reverse_ct
+            window, 1, xs=2300, ys=800          
+            void = execute(plot_herb)
+            plotsym, 0, /fill
+            set_line_color
+            plots, btimes, bf, color=1, symsize=0.4, psym=8
+            wait,2.0
+            if keyword_set(save_bursts) then write_text, btimes, bf, inten
+        
+        endif        
+        
       endif
         
       btimes = 0.0
       bf=0.0
       drift=0.0
-      wait, 1.0
+    
   ENDFOR
 
 END
@@ -153,8 +161,8 @@ END
 
 pro write_text, bt, bff, inten
 
-  IF file_test('bursts_tf_second_master_reverse.txt') eq 1 THEN BEGIN
-    readcol,'bursts_tf_second_master_reverse.txt', btprev, bffprev, intenprev,$
+  IF file_test('bursts_ft_second_master_reverse.txt') eq 1 THEN BEGIN
+    readcol,'bursts_ft_second_master_reverse.txt', btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -163,7 +171,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_tf_second_master_reverse.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, 'bursts_ft_second_master_reverse.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
