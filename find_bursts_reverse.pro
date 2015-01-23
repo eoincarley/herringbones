@@ -1,4 +1,5 @@
-pro plot_points_from_hough, save_bursts = save_bursts
+pro find_bursts_reverse, save_bursts = save_bursts, $
+                        first = first, second = second
   ;
   ;
   ;11-Sep-2013 - Code to plot the points detected by the Hough transform
@@ -9,12 +10,32 @@ pro plot_points_from_hough, save_bursts = save_bursts
   !p.charsize = 1.5
   loadct, 5
   reverse_ct
-
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
-  t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
-  t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
-  f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 42.0)
+
+  if keyword_set(first) then begin
+      ; First reverse bursts
+      t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
+      t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
+      f1_index = closest(freq, 60.0)
+      f2_index = closest(freq, 32.0)
+      inten0 = -20
+      inten1 = 30
+      filename_peaks = 'peak_tf_first_master_reverse.sav'
+      filename_bursts = 'bursts_ft_first_master_reverse.txt'
+  endif
+
+  if keyword_set(second) then begin
+      ; Second reverse bursts
+      t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
+      t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
+      f1_index = closest(freq, 80.0)
+      f2_index = closest(freq, 42.0)
+      inten0 = -40
+      inten1 = 40
+      filename_peaks = 'peak_tf_second_master_reverse.sav'
+      filename_bursts = 'bursts_ft_test.txt'
+  endif
+  
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
@@ -24,10 +45,10 @@ pro plot_points_from_hough, save_bursts = save_bursts
           
   finuse = freq[f1_index:f2_index]
   
-  data_displ = bytscl(data_bs, -30, 40)
+  data_displ = bytscl(data_bs, inten0, inten1)
   plot_herb = 'spectro_plot, data_displ , times, freq, /ys, ytitle = "Frequency [MHz]", ticks = 5, yminor = 4, yr = [freq[f1_index], freq[f2_index]], xrange = [times[t1_index],times[t2_index]], /xs, xtitle = xtit'
   
-  restore,'peak_tf_second_master_reverse.sav'
+  restore, filename_peaks
   nfreqs = (size(peak_time_freq))[1]
   nburst = (size(peak_time_freq))[2]
   
@@ -144,7 +165,7 @@ pro plot_points_from_hough, save_bursts = save_bursts
             set_line_color
             plots, btimes, bf, color=1, symsize=0.4, psym=8
             wait,2.0
-            if keyword_set(save_bursts) then write_text, btimes, bf, inten
+            if keyword_set(save_bursts) then write_text, btimes, bf, inten, filename_bursts
         
         endif        
         
@@ -159,10 +180,10 @@ pro plot_points_from_hough, save_bursts = save_bursts
 END
 
 
-pro write_text, bt, bff, inten
+pro write_text, bt, bff, inten, filename_bursts
 
-  IF file_test('bursts_ft_second_master_reverse.txt') eq 1 THEN BEGIN
-    readcol,'bursts_ft_second_master_reverse.txt', btprev, bffprev, intenprev,$
+  IF file_test(filename_bursts) eq 1 THEN BEGIN
+    readcol, filename_bursts, btprev, bffprev, intenprev,$
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
@@ -171,7 +192,7 @@ pro write_text, bt, bff, inten
 
   ENDIF
 
-  writecol, 'bursts_ft_second_master_reverse.txt', anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
+  writecol, filename_bursts, anytim(bt, /ccs), bff, inten, fmt='(A,D,D)'
 
 END
 
@@ -190,22 +211,3 @@ pro get_bg, in, times, freq, $
 
 
 END
-
-pro calc_drift, bt, bf
-
-    tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
-    result = linfit(tsec, bf, yfit = yfit)
-    
-    start = [result[1]]
-    if bf[0] eq 33.25 then intersect='33.25'
-    if bf[0] eq 46.25 then intersect='46.25'
-    
-    
-	  fit = 'p[0]*x + '+	intersect
-	  result = mpfitexpr(fit, tsec , bf, err, yfit=yfit, start)
-    
-    drift = result[0]
-    print, drift
-    xyouts, bt[n_elements(bf)-1], bf[n_elements(bf)-1], string(drift, format='(f4.1)'), /data, color=1, align=0.5, charsize=1.3
-    
-END    
