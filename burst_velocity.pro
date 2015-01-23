@@ -34,13 +34,13 @@ pro burst_velocity
   ;-------------------------------------;
   ;			        Read data
   ;
-  readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
-  readcol,'bursts_bs_hough_first2.txt', btall2, bfall2, biall2, format = 'A,D,D'
-  readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
+  readcol,'bursts_ft_first_master_reverse.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  readcol,'bursts_ft_second_master_reverse.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  ;readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall1, '-', btall2, '-', btall3]
-  bfall = [bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
-  biall = [biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
+  btall = [btall1, '-', btall2];, '-', btall3]
+  bfall = [bfall1, !Values.F_NAN, bfall2];, !Values.F_NAN, bfall3]
+  biall = [biall1, !Values.F_NAN, biall2];, !Values.F_NAN, biall3]
   
   
   indices = where(btall eq '-')
@@ -96,8 +96,8 @@ pro burst_velocity
         ; Do fitting
         result = linfit(tsec, bf, yfit = yfit)
         start = [result[1]]
-        if bf[0] lt 46.00 then intersect='33.25'
-        if bf[0] eq 46.25 then intersect='46.25'
+        if bf[0] lt 41.0 then intersect='32.25'
+        if bf[0] gt 42.0 then intersect='42.25'
         fit = 'p[0]*x + '+	intersect
         result = mpfitexpr(fit, tsec , bf, err, yfit=ftfit, start)
     
@@ -139,8 +139,8 @@ pro burst_velocity
   ;wset, 2
 
  
-  index46 = where(start_f eq 46.25)
-  index33 = where(start_f eq 33.25)
+  index46 = where(start_f gt 41.25)
+  index33 = where(start_f lt 41.25)
   drift_low = drift[index33]
   drift_high = drift[index46]
   
@@ -149,7 +149,7 @@ pro burst_velocity
     ; and two pixels in time = 0.5 seconds -> Drift res is 0.9/0.5 = 1.8 MHz/s
     cghistoplot, drift, binsize=1.8, /fill, $
       xr = [2, 18], $
-      yr = [0, 25], $
+      yr = [0, 30], $
       xtitle = 'Drift rate (MHz s!U-1!N)', $
       ytitle='Number of occurences'
    
@@ -158,7 +158,7 @@ pro burst_velocity
      cghistoplot, drift_low, binsize=1.8, /fill, $
       xr = [2, 18], $
       polycolor = 230, $
-      yr = [0, 25], $
+      yr = [0, 30], $
       xtitle = ' ', $
       ytitle=' ', $
       /noerase
@@ -168,7 +168,7 @@ pro burst_velocity
   ;     Velocity histogram
   ; 
   ; binsize = speed resolution given f and t resolution and model used.
-  dens = freq2dens([46.0e6, 46.9e6])
+  dens = freq2dens([42.0e6, 42.9e6])
   rads = density_to_radius(dens, /saito, fold = 5)
   binsize = (((rads[0] - rads[1])/(0.5))*6.955e8)/2.9e8 
   ;wset, 3
@@ -177,14 +177,14 @@ pro burst_velocity
     
     cghistoplot, vels, binsize=binsize, /fill, $
       xr = [0.1, 0.5], $
-      yr = [0, 30], $
+      yr = [0, 40], $
       xtitle = 'Velocity (c)', $
       ytitle='Number of occurences'  
       
     loadct, 1  
     cghistoplot, vels[index33], binsize=binsize, $
       xr = [0.1, 0.5], $
-      yr = [0, 30], $
+      yr = [0, 40], $
       polycolor = 230, $
       /fill, $
       xtitle = ' ', $
@@ -202,14 +202,15 @@ pro burst_velocity
   setup_ps, 'figures/scatter_flen_drift.ps' 
     plot, flength, drift, $
       psym=8, $  
-      yr = [0.0 , 15], $
+      yr = [3 , 15], $
       xr=[0, 35], $
       /xs, $
+      /ys, $
       xtitle = 'Frequency span (MHz)', $
       ytitle = 'Drift rate (MHz s!U-1!N)'
     
      for i =0, n_elements(flength)-1 do begin
-      if start_f[i] lt 45 then color=245 else color=80
+      if start_f[i] lt 41 then color=245 else color=80
       oplot, [0, flength[i]], [0, drift[i]], $
           psym=8, $
           color = color
