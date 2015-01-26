@@ -25,9 +25,9 @@ pro burst_intensity
   readcol,'bursts_ft_second_master_reverse.txt', btall2, bfall2, biall2, format = 'A,D,D'
   ;readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall1, '-', btall2];, '-', btall3]
-  bfall = [bfall1, !Values.F_NAN, bfall2];, !Values.F_NAN, bfall3]
-  biall = [biall1, !Values.F_NAN, biall2];, !Values.F_NAN, biall3]
+  btall = [btall1 , '-', btall2];, '-', btall3]
+  bfall = [bfall1 , !Values.F_NAN, bfall2];, !Values.F_NAN, bfall3]
+  biall = [biall1 , !Values.F_NAN, biall2];, !Values.F_NAN, biall3]
   
   indices = where(btall eq '-')
   indices = [-1, indices]
@@ -201,7 +201,7 @@ pro burst_intensity
   setup_ps, 'figures/scatter_displ_maxi.ps'
     plot, [displ], [max_bi], $
         psym=8, $
-        xr = [0.0, 0.35], $
+        xr = [0.0, 0.45], $
         yr = [5.0, 50], $, 
         /ys, $
         xtit = 'Beam displacement (Rsun)', $

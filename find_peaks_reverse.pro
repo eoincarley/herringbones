@@ -18,8 +18,8 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     ; Region of first reverse bursts.  Best performance is angle1 = 185, angle2 = 215
     t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
     t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
-    f1_index = closest(freq, 60.0)
-    f2_index = closest(freq, 33.0)
+    f1_index = closest(freq, 62.0)
+    f2_index = closest(freq, 32.0)
     inten0 = -20  ;-60
     inten1 = 20   ;30 
     filename_save = 'peak_ft_first_master_reverse.sav'
@@ -29,7 +29,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     ; Region of first second bursts.  Best performance is angle1 = 180, angle2 = 200
     t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
     t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
-    f1_index = closest(freq, 80.0)
+    f1_index = closest(freq, 90.0)
     f2_index = closest(freq, 42.0)
     inten0 = -40
     inten1 = 40

@@ -38,9 +38,9 @@ pro burst_velocity
   readcol,'bursts_ft_second_master_reverse.txt', btall2, bfall2, biall2, format = 'A,D,D'
   ;readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall1, '-', btall2];, '-', btall3]
-  bfall = [bfall1, !Values.F_NAN, bfall2];, !Values.F_NAN, bfall3]
-  biall = [biall1, !Values.F_NAN, biall2];, !Values.F_NAN, biall3]
+  btall = [btall1 , '-', btall2];, '-', btall3]
+  bfall = [bfall1 , !Values.F_NAN, bfall2];, !Values.F_NAN, bfall3]
+  biall = [biall1 , !Values.F_NAN, biall2];, !Values.F_NAN, biall3]
   
   
   indices = where(btall eq '-')
@@ -97,7 +97,7 @@ pro burst_velocity
         result = linfit(tsec, bf, yfit = yfit)
         start = [result[1]]
         if bf[0] lt 41.0 then intersect='32.25'
-        if bf[0] gt 42.0 then intersect='42.25'
+        if bf[0] gt 41.0 then intersect='42.25'
         fit = 'p[0]*x + '+	intersect
         result = mpfitexpr(fit, tsec , bf, err, yfit=ftfit, start)
     

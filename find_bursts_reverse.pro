@@ -16,11 +16,12 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
       ; First reverse bursts
       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
-      f1_index = closest(freq, 60.0)
+      f1_index = closest(freq, 62.0)
       f2_index = closest(freq, 32.0)
       inten0 = -20
       inten1 = 30
-      filename_peaks = 'peak_tf_first_master_reverse.sav'
+      burst_zero_inten = 7.0
+      filename_peaks = 'peak_ft_first_master_reverse.sav'
       filename_bursts = 'bursts_ft_first_master_reverse.txt'
   endif
 
@@ -28,11 +29,12 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
       ; Second reverse bursts
       t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
-      f1_index = closest(freq, 80.0)
+      f1_index = closest(freq, 90.0)
       f2_index = closest(freq, 42.0)
       inten0 = -40
       inten1 = 40
-      filename_peaks = 'peak_tf_second_master_reverse.sav'
+      burst_zero_inten = 7.0
+      filename_peaks = 'peak_ft_second_master_reverse.sav'
       filename_bursts = 'bursts_ft_test.txt'
   endif
   
@@ -130,9 +132,9 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
         window, 3, ysize=500, xpos = 400, ypos=800
         loadct, 0
         plot, bf, smooth(inten, 5), /xs, yr = [0, 65], /ys
-        five = fltarr(n_elements(bf))
-        five[*] = 7.
-        oplot, bf, five, linestyle=2
+        zero = fltarr(n_elements(bf))
+        zero[*] = burst_zero_inten
+        oplot, bf, zero, linestyle=2
         
   
         ;---------------------------------------------;
@@ -202,8 +204,8 @@ pro get_bg, in, times, freq, $
 
   index0 = closest(times, anytim(file2time('20110922_104730'),/utim))
   index1 = closest(times, anytim(file2time('20110922_104800'),/utim))
-  index2 = closest(freq, 80.0)
-  index3 = closest(freq, 41.0)
+  index2 = closest(freq, 62.0)
+  index3 = closest(freq, 32.0)
 
   in = in[index0:index1, index2:index3]
   out = average(in, 2)
