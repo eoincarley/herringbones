@@ -23,12 +23,12 @@ pro burst_intensity
   ;
   readcol, 'bursts_ft_first_master_reverse.txt', btall0, bfall0, biall0, format = 'A,D,D'
   readcol, 'bursts_ft_second_master_reverse.txt', btall1, bfall1, biall1, format = 'A,D,D'
-  readcol, 'bursts_ft_first_master_positive.txt', btall2, bfall2, biall2, format = 'A,D,D'
-  readcol, 'bursts_ft_second_master_positive.txt', btall3, bfall3, biall3, format = 'A,D,D'
+  ;readcol, 'bursts_ft_first_master_positive.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  ;readcol, 'bursts_ft_second_master_positive.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall0, '-', btall1, '-', btall2, '-', btall3]
-  bfall = [bfall0, !Values.F_NAN, bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
-  biall = [biall0, !Values.F_NAN, biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
+  btall = [btall0, '-', btall1] ;, '-', btall2, '-', btall3]
+  bfall = [bfall0, !Values.F_NAN, bfall1] ;, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
+  biall = [biall0, !Values.F_NAN, biall1] ;, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
   
   indices = where(btall eq '-')
   indices = [-1, indices]
@@ -223,12 +223,12 @@ pro burst_intensity
           psym=8, $
           color = color
     endfor
-    PRINT, 'Intensity and displacement correlation: '+ string(CORRELATE(flength, max_bi))
+    PRINT, 'Intensity and displacement correlation coefficient: '+ string(CORRELATE(flength, max_bi))
   device, /close
   
   loadct, 39
   ;-----------------------------------------;      
-  ;     Frequency drift v Intensity drift
+  ;    Frequency drift v Intensity drift
   ;    
   setup_ps, 'figures/scatter_fdrift_idrift.ps'
     plot, [drift[0]], [bidrift[0]], $
@@ -249,7 +249,7 @@ pro burst_intensity
           color=color
           
     endfor
-    PRINT, 'Intensity and displacement correlation: '+ string(CORRELATE(alldrift, bidrift))      
+    PRINT, 'dI/dt and drift correlation coefficient: '+ string(CORRELATE(alldrift, bidrift))      
    device, /close   
    set_plot, 'x'
 

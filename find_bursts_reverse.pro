@@ -6,7 +6,6 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   ;
   ;
   cd, '~/Data/22Sep2011_event/herringbones'
-  ;spawn,'rm -f bursts_bs_hough_second.txt'
   !p.charsize = 1.5
   loadct, 5
   reverse_ct
@@ -14,10 +13,12 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
 
   if keyword_set(first) then begin
       ; First reverse bursts
+      freq1 = 62.0
+      freq2 = 32.0
       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
-      f1_index = closest(freq, 62.0)
-      f2_index = closest(freq, 32.0)
+      f1_index = closest(freq, freq1)
+      f2_index = closest(freq, freq2)
       inten0 = -20
       inten1 = 30
       burst_zero_inten = 7.0
@@ -27,22 +28,24 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
 
   if keyword_set(second) then begin
       ; Second reverse bursts
+      freq1 = 90.0
+      freq2 = 42.0
       t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
-      f1_index = closest(freq, 90.0)
-      f2_index = closest(freq, 42.0)
+      f1_index = closest(freq, freq1)
+      f2_index = closest(freq, freq2)
       inten0 = -40
       inten1 = 40
       burst_zero_inten = 7.0
       filename_peaks = 'peak_ft_second_master_reverse.sav'
-      filename_bursts = 'bursts_ft_test.txt'
+      filename_bursts = 'bursts_ft_second_master_reverse.txt'
   endif
   
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
   in = data_bs
-  get_bg, in, times, freq, $
+  get_bg, in, times, freq, freq1, freq2, $
           out_bg, sig
           
   finuse = freq[f1_index:f2_index]
@@ -131,7 +134,7 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
 
         window, 3, ysize=500, xpos = 400, ypos=800
         loadct, 0
-        plot, bf, smooth(inten, 5), /xs, yr = [0, 65], /ys
+        plot, bf, smooth(inten, 5), /xs, yr = [0, 65], /ys, xr=[freq2, freq1]
         zero = fltarr(n_elements(bf))
         zero[*] = burst_zero_inten
         oplot, bf, zero, linestyle=2
@@ -189,7 +192,7 @@ pro write_text, bt, bff, inten, filename_bursts
     format = 'A,D,D'
   
     bt = [btprev, '-', anytim(bt, /ccs)]
-      bff = [bffprev, !Values.F_NAN, bff]
+    bff = [bffprev, !Values.F_NAN, bff]
     inten = [intenprev, !Values.F_NAN, inten]
 
   ENDIF
@@ -199,13 +202,13 @@ pro write_text, bt, bff, inten, filename_bursts
 END
 
 
-pro get_bg, in, times, freq, $
+pro get_bg, in, times, freq, freq1, freq2, $
           out, sig
 
-  index0 = closest(times, anytim(file2time('20110922_104730'),/utim))
-  index1 = closest(times, anytim(file2time('20110922_104800'),/utim))
-  index2 = closest(freq, 62.0)
-  index3 = closest(freq, 32.0)
+  index0 = closest(times, anytim(file2time('20110922_104730'), /utim))
+  index1 = closest(times, anytim(file2time('20110922_104800'), /utim))
+  index2 = closest(freq, freq1)
+  index3 = closest(freq, freq2)
 
   in = in[index0:index1, index2:index3]
   out = average(in, 2)

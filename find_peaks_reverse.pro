@@ -1,6 +1,6 @@
 pro find_peaks_reverse, angle1, angle2, normal_back, $
           PLOT_HOUGH=plot_hough, SAVE_POINTS = save_points, $
-          first = first, second = second
+          FIRST = first, SECOND = second
 
   ;v5 first finds all bursts for a particular frequency slice and then succesively moves onto the
   ;next frequencies. Need to do it the other way around e.g., get the first peak and trace this peak 
@@ -13,20 +13,20 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   !p.charsize = 1
   cd,'~/Data/22Sep2011_event/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
-
+  
   if keyword_set(first) then begin
-    ; Region of first reverse bursts.  Best performance is angle1 = 185, angle2 = 215
+    ; Region of first reverse bursts.  Best performance is angle1 = 190, angle2 = 220
     t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
     t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
     f1_index = closest(freq, 62.0)
     f2_index = closest(freq, 32.0)
     inten0 = -20  ;-60
-    inten1 = 20   ;30 
+    inten1 = 30   ; 30 
     filename_save = 'peak_ft_first_master_reverse.sav'
   endif
   
   if keyword_set(second) then begin
-    ; Region of first second bursts.  Best performance is angle1 = 180, angle2 = 200
+    ; Region of first second bursts.  Best performance is angle1 = 182, angle2 = 195
     t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
     t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
     f1_index = closest(freq, 90.0)
@@ -37,7 +37,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   endif 
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
-  data_bs = smooth(constbacksub(data_raw, /auto), 1)
+  data_bs = smooth(constbacksub(data_raw, /auto), 3)
   data_section = data_bs[t1_index:t2_index, f1_index:f2_index]
   data_clip =  gradient(bytscl(data_section, inten0, inten1))
 
