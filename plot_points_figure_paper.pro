@@ -13,7 +13,7 @@ pro plot_points_figure_paper
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
   t1_index = closest(times, anytim(file2time('20110922_104700'),/utim))
-  t2_index = closest(times, anytim(file2time('20110922_105400'),/utim))
+  t2_index = closest(times, anytim(file2time('20110922_105330'),/utim))
   f1_index = closest(freq, 90.0)
   f2_index = closest(freq, 10.0)
   data_bs = constbacksub(data_raw, /auto)

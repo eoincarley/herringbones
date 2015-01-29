@@ -214,7 +214,7 @@ pro burst_velocity
       set_line_color
      for i =0, n_elements(flength)-1 do begin
       if round(start_f[i]) eq 43 then color=3 
-      if round(start_f[i]) eq 33 then color=5    
+      if round(start_f[i]) eq 32 then color=5    
       if round(start_f[i]) eq 31 then color=4 
       if round(start_f[i]) eq 42 then color=2 
       
