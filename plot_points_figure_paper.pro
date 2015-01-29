@@ -13,41 +13,33 @@ pro plot_points_figure_paper
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
   t1_index = closest(times, anytim(file2time('20110922_104700'),/utim))
-  t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
-  f1_index = closest(freq, 80.0)
-  f2_index = closest(freq, 20.0)
+  t2_index = closest(times, anytim(file2time('20110922_105400'),/utim))
+  f1_index = closest(freq, 90.0)
+  f2_index = closest(freq, 10.0)
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc)+ '(UT)'
   
   
-  spectro_plot, bytscl(data_bs, -40, 40) , times, freq, $
+  spectro_plot, bytscl(data_bs, -10, 40) , times, freq, $
       /ys, $
       ytitle = '!6Frequency [MHz]', $
-      yticks = 5, $
-      yminor = 4, $
       yr = [freq[f1_index], freq[f2_index]], $
       xrange = [times[t1_index],times[t2_index]], $
       /xs, $
       xtitle = xtit
 
-
+ 
   ;-------------------------------------;
   ;			     Read burst data
   ;
-  ;readcol,'bursts_bs_hough_first1.txt', btall1, bfall1, biall1, format = 'A,D,D'
-  ;readcol,'bursts_bs_hough_first2.txt', btall2, bfall2, biall2, format = 'A,D,D'
-  ;readcol,'bursts_bs_hough_second.txt', btall3, bfall3, biall3, format = 'A,D,D'
-  
-  ;btall = [btall1, '-', btall2, '-', btall3]
-  ;bfall = [bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
-  ;biall = [biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
-
   readcol, 'bursts_ft_first_master_reverse.txt', btall0, bfall0, biall0, format = 'A,D,D'
   readcol, 'bursts_ft_second_master_reverse.txt', btall1, bfall1, biall1, format = 'A,D,D'
+  readcol, 'bursts_ft_second_master_positive.txt', btall2, bfall2, biall2, format = 'A,D,D'
+  readcol, 'bursts_ft_first_master_positive.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  btall = [btall1];, '-', btall1, '-'] ;, btall3]
-  bfall = [bfall1];, !Values.F_NAN, bfall1] ;, !Values.F_NAN, bfall3]
-  biall = [biall1];, !Values.F_NAN, biall1] ;, !Values.F_NAN, biall3]
+  btall = [btall0, '-', btall1, '-', btall2, '-', btall3]
+  bfall = [bfall0, !Values.F_NAN, bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
+  biall = [biall0, !Values.F_NAN, biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
 
   
   indices = where(btall eq '-')
