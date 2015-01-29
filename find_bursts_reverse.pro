@@ -14,7 +14,7 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   if keyword_set(first) then begin
       ; First reverse bursts
       freq1 = 62.0
-      freq2 = 32.0
+      freq2 = 31.0
       t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
       f1_index = closest(freq, freq1)

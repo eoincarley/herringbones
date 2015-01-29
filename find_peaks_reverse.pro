@@ -19,7 +19,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
     t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
     f1_index = closest(freq, 62.0)
-    f2_index = closest(freq, 32.0)
+    f2_index = closest(freq, 31.0)
     inten0 = -20  ;-60
     inten1 = 30   ; 30 
     filename_save = 'peak_ft_first_master_reverse.sav'
@@ -37,7 +37,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   endif 
 
   ;---------  Chosse intensity clipping and Hough angles  --------;
-  data_bs = smooth(constbacksub(data_raw, /auto), 3)
+  data_bs = smooth(constbacksub(data_raw, /auto), 1)
   data_section = data_bs[t1_index:t2_index, f1_index:f2_index]
   data_clip =  gradient(bytscl(data_section, inten0, inten1))
 
