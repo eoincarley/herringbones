@@ -7,8 +7,8 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   ;
   cd, '~/Data/22Sep2011_event/herringbones'
   !p.charsize = 1.5
-  loadct, 5
-  reverse_ct
+  loadct, 74
+  ;reverse_ct
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
 
   if keyword_set(first) then begin
@@ -29,12 +29,12 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   if keyword_set(second) then begin
       ; Second reverse bursts
       freq1 = 90.0
-      freq2 = 42.0
+      freq2 = 44.0
       t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
       f1_index = closest(freq, freq1)
       f2_index = closest(freq, freq2)
-      inten0 = -40
+      inten0 = -5
       inten1 = 40
       burst_zero_inten = 7.0
       filename_peaks = 'peak_ft_second_master_reverse.sav'
@@ -71,8 +71,8 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
 
 
   FOR j=1, n_elements(ft1)-1 DO BEGIN
-    loadct, 5, /silent
-    reverse_ct
+    loadct, 74, /silent
+    ;reverse_ct
     window, 1, xs=2300, ys=800          
     void = execute(plot_herb)
   

@@ -11,13 +11,13 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   
   loadct, 5
   !p.charsize = 1
-  cd,'~/Data/22Sep2011_event/herringbones'
+  cd, '~/Data/22Sep2011_event/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
   
   if keyword_set(first) then begin
     ; Region of first reverse bursts.  Best performance is angle1 = 190, angle2 = 220
-    t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
-    t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
+    t1_index = closest(times, anytim(file2time('20110922_104730'),/utim))
+    t2_index = closest(times, anytim(file2time('20110922_105030'),/utim))
     f1_index = closest(freq, 62.0)
     f2_index = closest(freq, 31.0)
     inten0 = -20  ;-60
@@ -27,11 +27,11 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   
   if keyword_set(second) then begin
     ; Region of first second bursts.  Best performance is angle1 = 182, angle2 = 195
-    t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
-    t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
+    t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
+    t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
     f1_index = closest(freq, 90.0)
-    f2_index = closest(freq, 42.0)
-    inten0 = -40
+    f2_index = closest(freq, 44.0)
+    inten0 = -20
     inten1 = 40
     filename_save = 'peak_ft_second_master_reverse.sav'
   endif 
@@ -82,6 +82,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
       charsize=1.5, $
       ytitle='Frequency (MHz)', $
       title='Backprojected Hough Transform'
+  save, normal_back, time_set, freq_set, filename = 'back_proj_hough.sav'
 
   ;         			  END OF HOUGH IMAGE PROCESSING
   ;
@@ -152,8 +153,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
 
   ;-------------- PLOT ALL DATA POINTS FOUND -----------------
   
-  loadct, 5
-  reverse_ct
+  loadct, 74
   window, 1, xs=2400, ys=700
   spectro_plot,( bytscl(data_bs, inten0, inten1) ), times, freq, $
       /ys, $
@@ -170,10 +170,10 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   plotsym, 0, /fill
   cd,'~/Data/22Sep2011_event/herringbones'
   if keyword_set(save_points) then save, peak_time_freq, filename=filename_save
+  
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=4, psym=8, symsize=0.5
-      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=0, psym=8, symsize=0.4
-      
+      plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=0, psym=8, symsize=0.4    
   ENDFOR
 
 

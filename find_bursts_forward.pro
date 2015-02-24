@@ -1,4 +1,4 @@
-pro find_bursts_positive, save_bursts = save_bursts, $
+pro find_bursts_forward, save_bursts = save_bursts, $
           FIRST = first, SECOND = second
   ;
   ;
@@ -19,8 +19,8 @@ pro find_bursts_positive, save_bursts = save_bursts, $
       f2_index = closest(freq, frequency2)
       inten0 = -40
       inten1 = 10
-      peak_file = 'peak_ft_first_master_positive.sav'
-      burst_file = 'bursts_ft_first_master_positive.txt'
+      peak_file = 'peak_ft_first_master_forward.sav'
+      burst_file = 'bursts_ft_first_master_forward.txt'
       zero_burst = -5.0
   endif
   
@@ -31,8 +31,8 @@ pro find_bursts_positive, save_bursts = save_bursts, $
       t2_index = closest(times,anytim(file2time('20110922_105500'),/utim))
       f1_index = closest(freq, frequency1)
       f2_index = closest(freq, frequency2)
-      peak_file = 'peak_ft_second_master_positive.sav'
-      burst_file = 'bursts_ft_second_master_positive.txt'
+      peak_file = 'peak_ft_second_master_forward.sav'
+      burst_file = 'bursts_ft_second_master_forward.txt'
       inten0 = -20
       inten1 = 50
       zero_burst = 0.0

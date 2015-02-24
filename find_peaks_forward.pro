@@ -1,4 +1,4 @@
-pro find_peaks_positive, angle1, angle2, normal_back, $
+pro find_peaks_forward, angle1, angle2, normal_back, $
           PLOT_HOUGH=plot_hough, SAVE_POINTS = save_points, $
           SECOND = second, FIRST = first
 
@@ -13,7 +13,7 @@ pro find_peaks_positive, angle1, angle2, normal_back, $
   cd, '~/Data/22Sep2011_event/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
   
-  ; Now positive drift bursts. First.
+  ; Now forward drift bursts. First.
   ; best performance is angle1 = 145, angle2 = 175
   if keyword_set(first) then begin
     t1_index = closest(times,anytim(file2time('20110922_104730'),/utim))
@@ -22,12 +22,12 @@ pro find_peaks_positive, angle1, angle2, normal_back, $
     f2_index = closest(freq, 12.0)
     inten0 = -30
     inten1 = 20
-    outname = 'peak_ft_first_master_positive.sav'
+    outname = 'peak_ft_first_master_forward.sav'
     smooth_param = 1
   endif
   
   
-  ; Now positive drift bursts. Second.
+  ; Now forward drift bursts. Second.
   ; best performance is angle1 = 138, angle2 = 175
   if keyword_set(second) then begin
     t1_index = closest(times,anytim(file2time('20110922_105110'),/utim))
@@ -36,7 +36,7 @@ pro find_peaks_positive, angle1, angle2, normal_back, $
     f2_index = closest(freq, 17.0)
     inten0 = -20
     inten1 = 50
-    outname = 'peak_ft_second_master_positive.sav'
+    outname = 'peak_ft_second_master_forward.sav'
     smooth_param = 1
   endif 
   
