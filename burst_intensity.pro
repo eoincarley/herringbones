@@ -24,12 +24,15 @@ pro burst_intensity
   btall = [btall0, '-', btall1, '-', btall2, '-', btall3]
   bfall = [bfall0, !Values.F_NAN, bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
   biall = [biall0, !Values.F_NAN, biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
+  rev1f0 = bfall0[0]
+  rev2f0 = bfall1[0]
+  for2f0 = bfall2[0]
+  for1f0 = bfall3[0]
   
   indices = where(btall eq '-')
   indices = [-1, indices]
   
   restore, 'beam_kins.sav', /verb
-  
   drift = beam_kins[0]
   vels = beam_kins[1]
   displ = beam_kins[2]
@@ -190,10 +193,10 @@ pro burst_intensity
     loadct, 74  
     for i =0, n_elements(vels)-1 do begin
       ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-      if round(start_f[i]) eq 43 then color = 220 		;Second reverse
-      if round(start_f[i]) eq 42 then color = 80    	;Second forward
-      if round(start_f[i]) eq 31 then color = 50    	;First forward 
-      if round(start_f[i]) eq 32 then color = 170 		;First reverse
+      if start_f[i] eq rev2f0 then color = 220 		;Second reverse
+      if start_f[i] eq for2f0 then color = 80    	;Second forward
+      if start_f[i] eq for1f0 then color = 50    	;First forward 
+      if start_f[i] eq rev1f0 then color = 170 		;First reverse
 
       oplot, [vels[i]], [max_bi[i]], $
           psym=8, $
@@ -227,10 +230,10 @@ pro burst_intensity
     loadct, 74    
     for i =0, n_elements(displ)-1 do begin
       ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-      if round(start_f[i]) eq 43 then color = 220 		;Second reverse
-      if round(start_f[i]) eq 42 then color = 80    	;Second forward
-      if round(start_f[i]) eq 31 then color = 50    	;First forward 
-      if round(start_f[i]) eq 32 then color = 170 		;First reverse
+      if start_f[i] eq rev2f0 then color = 220     ;Second reverse
+      if start_f[i] eq for2f0 then color = 80     ;Second forward
+      if start_f[i] eq for1f0 then color = 50     ;First forward 
+      if start_f[i] eq rev1f0 then color = 170    ;First reverse
       
       if end_f[i] gt 88.0 then begin
       	void = execute('PLOTSYM, 7, 2.5, thick=3, /FILL') 
@@ -251,8 +254,8 @@ pro burst_intensity
 
     
      ; Now correlated separately
-    indeces43 = where(round(start_f) eq 43)
-    indeces32 = where(round(start_f) eq 32)
+    indeces43 = where(start_f eq rev2f0)
+    indeces32 = where(start_f eq rev1f0)
     loadct, 74
     idft = linfit(displ[indeces43], max_bi[indeces43], yfit = yfit)
     oplot, displ[indeces43], yfit, color=220   
@@ -290,10 +293,10 @@ pro burst_intensity
     loadct, 74        
     for i =0, n_elements(drift)-1 do begin
       ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-      if round(start_f[i]) eq 43 then color = 220 		;Second reverse
-      if round(start_f[i]) eq 42 then color = 80    	;Second forward
-      if round(start_f[i]) eq 31 then color = 50    	;First forward 
-      if round(start_f[i]) eq 32 then color = 170 		;First reverse
+      if start_f[i] eq rev2f0 then color = 220    ;Second reverse
+      if start_f[i] eq for2f0 then color = 80     ;Second forward
+      if start_f[i] eq for1f0 then color = 50     ;First forward 
+      if start_f[i] eq rev1f0 then color = 170    ;First reverse
           
       oplot, [abs(drift[i])], [bidrift[i]], $
           psym=8, $

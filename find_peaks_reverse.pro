@@ -30,7 +30,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
     t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
     f1_index = closest(freq, 90.0)
-    f2_index = closest(freq, 44.0)
+    f2_index = closest(freq, 45.0)
     inten0 = -20
     inten1 = 40
     filename_save = 'peak_ft_second_master_reverse.sav'

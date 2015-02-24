@@ -1,5 +1,6 @@
 pro find_bursts_reverse, save_bursts = save_bursts, $
-                        first = first, second = second
+                        first = first, second = second, $
+                        test = test
   ;
   ;
   ;11-Sep-2013 - Code to plot the points detected by the Hough transform
@@ -68,16 +69,21 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   ft1_index = where(peak_time_freq[nfreqs - 2, *] gt 0.0) ;start at second frequency column. First does not go through all points.
   ft1 = peak_time_freq[nfreqs - 2, ft1_index]
   
-
+  meander = 0.0
 
   FOR j=1, n_elements(ft1)-1 DO BEGIN
+  
+
+    comp_f = ft1[0]
+    comp_t = ft1[j]
+    t1_index = closest(times, comp_t - 20.0)
+    t2_index = closest(times, comp_t + 20.0)
+
     loadct, 74, /silent
     ;reverse_ct
     window, 1, xs=2300, ys=800          
     void = execute(plot_herb)
   
-    comp_f = ft1[0]
-    comp_t = ft1[j]
  
       i = nfreqs - 3
       WHILE i gt 1 DO BEGIN 
@@ -99,9 +105,9 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
           ;print, intensity, backg_sample, sig_sample
           ;if intensity le (backg_sample + 0.3*sig_sample) then i=0
 
-          
-          If abs(comp_t - t) gt 0.5 THEN BEGIN
-            i=0
+
+          IF abs(comp_t - t) gt 0.5 THEN BEGIN
+            i = 0
           ENDIF ELSE BEGIN
             btimes = [btimes,  t]
             bf = [bf, f]
@@ -162,12 +168,10 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
             bf = bf[ 0:user_stop_f ]
             btimes = btimes[ 0:user_stop_f ]
             
-            loadct, 5, /silent
-            reverse_ct
+            loadct, 74, /silent
             window, 1, xs=2300, ys=800          
             void = execute(plot_herb)
             plotsym, 0, /fill
-            set_line_color
             plots, btimes, bf, color=1, symsize=0.4, psym=8
             wait,2.0
             if keyword_set(save_bursts) then write_text, btimes, bf, inten, filename_bursts

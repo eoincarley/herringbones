@@ -54,10 +54,13 @@ pro burst_velocity, model
   readcol, 'bursts_ft_first_master_forward.txt', btall2, bfall2, biall2, format = 'A,D,D'
   readcol, 'bursts_ft_second_master_forward.txt', btall3, bfall3, biall3, format = 'A,D,D'
   
-  
   btall = [btall0, '-', btall1, '-', btall2, '-', btall3]
   bfall = [bfall0, !Values.F_NAN, bfall1, !Values.F_NAN, bfall2, !Values.F_NAN, bfall3]
   biall = [biall0, !Values.F_NAN, biall1, !Values.F_NAN, biall2, !Values.F_NAN, biall3]
+  rev1f0 = bfall0[0]
+  rev2f0 = bfall1[0]
+  for2f0 = bfall2[0]
+  for1f0 = bfall3[0]
   
   indices = where(btall eq '-')
   indices = [-1, indices]
@@ -120,11 +123,8 @@ pro burst_velocity, model
         ; Do fitting
         result = linfit(tsec, bf, yfit = yfit)
         start = [result[1]]
-        if round(bf[0]) eq 43 then intersect = '43.4'   ;second reverse
-        if round(bf[0]) eq 32 then intersect = '32.0'   ;first reverse
-        if round(bf[0]) eq 42 then intersect = '41.5'   ;second forward
-        if round(bf[0]) eq 31 then intersect = '31.2'   ;first forward
-        fit = 'p[0]*x + '+	intersect
+        
+        fit = 'p[0]*x + ' +	string(bf[0], format='(f5.2)')
         result = mpfitexpr(fit, tsec , bf, err, yfit=ftfit, start)
     
         drift[j] = result[0]
@@ -135,7 +135,7 @@ pro burst_velocity, model
         vels[j] = abs(kins[0]) 
         radii = kins[1]
         displ[j] = abs(radii[0] - radii[n_elements(radii)-1])
-   		lifetime[j] = tsec[n_elements(tsec)-1]
+   		  lifetime[j] = tsec[n_elements(tsec)-1]
         
         if i eq n_elements(indices)-2 then begin      
           plot, tsec, ftfit, $
@@ -366,10 +366,10 @@ pro burst_velocity, model
      loadct, 74
      for i =0, n_elements(flength)-1 do begin
 		  ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-		  if round(start_f[i]) eq 43 then color = 220 		;Second reverse
-		  if round(start_f[i]) eq 42 then color = 80    	;Second forward
-		  if round(start_f[i]) eq 31 then color = 50    	;First forward 
-		  if round(start_f[i]) eq 32 then color = 170 		;First reverse
+		  if start_f[i] eq rev2f0 then color = 220    ;Second reverse
+      if start_f[i] eq for2f0 then color = 80     ;Second forward
+      if start_f[i] eq for1f0 then color = 50     ;First forward 
+      if start_f[i] eq rev1f0 then color = 170    ;First reverse
 	  
 		  oplot, [driftabs[i]], [flength[i]], $
 			  psym=8, $
@@ -400,10 +400,10 @@ pro burst_velocity, model
      loadct, 74
      for i =0, n_elements(flength)-1 do begin
 		  ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-		  if round(start_f[i]) eq 43 then color = 220 		;Second reverse
-		  if round(start_f[i]) eq 42 then color = 80    	;Second forward
-		  if round(start_f[i]) eq 31 then color = 50    	;First forward 
-		  if round(start_f[i]) eq 32 then color = 170 		;First reverse
+		  if start_f[i] eq rev2f0 then color = 220    ;Second reverse
+      if start_f[i] eq for2f0 then color = 80     ;Second forward
+      if start_f[i] eq for1f0 then color = 50     ;First forward 
+      if start_f[i] eq rev1f0 then color = 170    ;First reverse
 	  
 		  oplot, [vels[i]], [displ[i]], $
 			  psym=8, $
@@ -429,10 +429,10 @@ pro burst_velocity, model
      loadct, 74
      for i =0, n_elements(flength)-1 do begin
       ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-      if round(start_f[i]) eq 43 then color = 220     ;Second reverse
-      if round(start_f[i]) eq 42 then color = 80      ;Second forward
-      if round(start_f[i]) eq 31 then color = 50      ;First forward 
-      if round(start_f[i]) eq 32 then color = 170     ;First reverse
+      if start_f[i] eq rev2f0 then color = 220    ;Second reverse
+      if start_f[i] eq for2f0 then color = 80     ;Second forward
+      if start_f[i] eq for1f0 then color = 50     ;First forward 
+      if start_f[i] eq rev1f0 then color = 170    ;First reverse
     
       oplot, [start_f[i]/driftabs[i]], [lifetime[i]], $
         psym=8, $
