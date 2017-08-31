@@ -5,7 +5,7 @@ pro find_bursts_forward, save_bursts = save_bursts, $
   ;11-Sep-2013 - Code to plot the points detected by the Hough transform
   ;
   ;
-  cd, '~/Data/22Sep2011_event/herringbones'
+  cd, '~/Data/2011_sep_22/herringbones'
   !p.charsize = 1.5
 
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq

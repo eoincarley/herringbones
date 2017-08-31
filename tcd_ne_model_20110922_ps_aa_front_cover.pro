@@ -15,12 +15,12 @@ pro setup_ps, name
 
 end
 
-pro tcd_ne_model_20110922_ps
+pro tcd_ne_model_20110922_ps_aa_front_cover
 
   ;--------------------------------;
   ;				Read the data
   ;--------------------------------;
-  cd,'~/Data/2011_sep_22/nrh/density_mag'
+  cd,'~/Data/2011_sep_22/density_mag'
   restore,'cartesian_density_map_22_sep.sav', /verb
   files_c2 = findfile('*.fts')
   c2data = lasco_readfits(files_c2[0], hdr)
@@ -43,7 +43,7 @@ pro tcd_ne_model_20110922_ps
     angle = angles[i]*!DTOR 
     xline = (COS(angle) * rhos + xcen)*1.0 ;working in pixel units ;hdr.cdelt1
     yline = (SIN(angle) * rhos + ycen)*1.0 ;working in pixel units ;hdr.cdelt1
-    plots, xline, yline, color=255, thick=1
+   ; plots, xline, yline, color=255, thick=1
     line_profile = interpolate(car_den_all.data, xline, yline)
     prof_array[i, *] = line_profile
   ENDFOR
@@ -71,48 +71,36 @@ pro tcd_ne_model_20110922_ps
   ;     Plot the in postscript
   ;--------------------------------;
 
-  setup_ps, 'tcd_density_map.eps'
+  setup_ps, 'tcd_density_map_aa.eps'
     loadct, 5
     FOV = [120.0, 120.0]
     car_den_all.data = alog10(car_den_all.data)
     tit = '2011-Sep-22 00:00:00 UT';strsplit(anytim(hdr.date_obs, /cc, /trun), 'T', /extract)+' UT'
-    plot_map, car_den_all, $
-        fov = FOV, $
-        title = tit, $
-        xticklen = -0.02, $
-        yticklen = -0.02, $
-        dmin = 4, $
-        dmax = 9
+   ; plot_map, car_den_all, $
+    ;    fov = FOV, $
+     ;   /noaxes, $
+      ;  /nolabels, $
+      ;  /noxticks, $
+      ;  /noyticks, $
+      ;  /notitle, $
+      ;  dmin = 4, $
+      ;  dmax = 9
 
     loadct, 74
     plot_map, car_den_all, $
         fov = FOV, $
-        title = ' ', $
-        xticklen = -0.02, $
-        yticklen = -0.02, $
+        /noaxes, $
+        /nolabels, $
+        /noxticks, $
+        /noyticks, $
+        /notitle, $
         dmin = 4, $
         dmax = 9, $
-        /noerase, $
-        /noaxes
+        /noerase
 
-    set_line_color
-    rhos = dindgen(150)
-    ;suncenter = get_sun_center(hdr)
-    xline = (COS(180*!DTOR) * rhos + 0)*hdr.cdelt1 ;working in pixel units ;hdr.cdelt1
-    yline = (SIN(180*!DTOR) * rhos + 0)*hdr.cdelt2 ;working in pixel units ;hdr.cdelt1
-    plots, xline, yline, color = 0, thick = 3
-
-    xline = (COS(225*!DTOR) * rhos + 0)*hdr.cdelt1 ;working in pixel units ;hdr.cdelt1
-    yline = (SIN(225*!DTOR) * rhos + 0)*hdr.cdelt2 ;working in pixel units ;hdr.cdelt1
-    plots, xline, yline, color = 0, thick = 3
-
-    tvcircle, 960.0, 0.0, 0.0, color=0, /data, /fill
-
-    set_line_color
-    plot_helio, hdr.date_obs, /over, gstyle=0, gthick=3.0, gcolor=1, grid_spacing=15.0
 
     data = (car_den_all.data)
-    remove_nans, data, data_out, /zero
+    remove_nans, data, data_out;, /zero
     data_round = round(data_out*10.0)/10.0
     dens1 = alog10(freq2dens(32e6))
     dens1 = round(dens1*10.0)/10.0
@@ -127,23 +115,44 @@ pro tcd_ne_model_20110922_ps
     ind43 = where(data_round eq dens2)
     xy43 = array_indices(data, ind43)
     xy43 = (xy43 - 300.0)*car_den_all.dx 
-
-    plots, xy32[0, *], xy32[1, *], color=0, thick=2, psym=3
-    plots, xy43[0, *], xy43[1, *], color=0, thick=2, psym=3
-    stop
+    plotsym, 0, /fill
+   ; plots, xy32[0, *], xy32[1, *], color=0, thick=1, psym=8, symsize=0.2
+   ; plots, xy43[0, *], xy43[1, *], color=0, thick=1, psym=8, symsize=0.2
+    
 
     loadct, 74
-    cgColorbar, Range=[4.0, 9.0], $
-        /vertical, $
-        /right, $
-        position = [0.88, 0.15, 0.89, 0.85], $
-        ticklen=-0.35
+    ;cgColorbar, Range=[4.0, 9.0], $
+    ;    /vertical, $
+    ;    /right, $
+    ;    position = [0.88, 0.15, 0.89, 0.85], $
+    ;    ticklen=-0.35
 
-    loadct, 0    
-    xyouts, 0.94, 0.5, 'Electron Density log!L10!N(n!Le!N) (cm!U-3!N)', orient = 270, alignment = 0.5, /normal
+    ;loadct, 0    
+    ;xyouts, 0.94, 0.5, 'Electron Density log!L10!N(n!Le!N) (cm!U-3!N)', orient = 270, alignment = 0.5, /normal
 
   device, /close
   set_plot, 'x'
+
+  setup_ps, 'tcd_on_disk.eps'
+    restore,'~/Data/2011_sep_22/density_mag/Density_map_disk_Zucca_et_al_20110922.sav', /verb
+    loadct, 74
+ 
+    plot_map, density_map, $
+        /noaxes, $
+        /nolabels, $
+        /noxticks, $
+        /noyticks, $
+        /notitle, $
+        dmin = 5e7, $
+        dmax = 4e8
+
+
+    set_line_color
+    plot_helio, hdr.date_obs, /over, gstyle=0, gthick=2.0, gcolor=0, grid_spacing=15.0     
+        
+  device, /close
+  set_plot, 'x'
+      
 
 
 END

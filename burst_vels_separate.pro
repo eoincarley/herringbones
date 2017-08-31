@@ -99,7 +99,7 @@ pro burst_vels_separate, model
 	dimen = 600
 	xpos = 500
 	ypos = 50 
-	folder = '~/Data/22Sep2011_event/herringbones'
+	folder = '~/Data/2011_sep_22/herringbones'
 	figs_folder = model
 	cd, folder
 
@@ -148,7 +148,7 @@ pro burst_vels_separate, model
 
 		loadct, 0
 		cghistoplot, vels_first, binsize=binsize, /fill, $
-			xr = [0.00, 0.35], $
+			xr = [0.00, 0.3], $
 			yr = [0, 35], $
 			polycolor = 200, $
 			orientation = [45], $
@@ -159,7 +159,7 @@ pro burst_vels_separate, model
 		
 		loadct, 74
 		cghistoplot, vels_first[index_forward_first], binsize=binsize, /line_fill, $
-			xr = [0.00, 0.35], $
+			xr = [0.00, 0.3], $
 			yr = [0, 35], $
 			polycolor = 50, $
 			orientation = [45], $
@@ -170,7 +170,7 @@ pro burst_vels_separate, model
 			MININPUT=0.0 
 
 		cghistoplot, vels_first[index_reverse_first], binsize=binsize, $
-			xr = [0.00, 0.35], $
+			xr = [0.00, 0.3], $
 			/xs, $
 			yr = [0, 35], $
 			orientation = [-45], $
@@ -196,7 +196,7 @@ pro burst_vels_separate, model
 	setup_ps, 'figures/'+figs_folder+'/hist_vels_second.eps' 
 		loadct, 0
 		cghistoplot, vels_second, binsize=binsize, /fill, $
-			xr = [0.00, 0.35], $
+			xr = [0.05, 0.3], $
 			yr = [0, 35], $
 			polycolor = 200, $
 			orientation = [45], $
@@ -207,7 +207,7 @@ pro burst_vels_separate, model
 			
 		loadct, 74	
 		cghistoplot, vels_second[index_reverse_second], binsize=binsize, $
-			xr = [0.00, 0.35], $
+			xr = [0.05, 0.3], $
 			/xs, $
 			yr = [0, 35], $
 			orientation = [-45], $
@@ -219,7 +219,7 @@ pro burst_vels_separate, model
 			MININPUT=0.0 
 			
 		cghistoplot, vels_second[index_forward_second], binsize=binsize, $
-			xr = [0.00, 0.35], $
+			xr = [0.05, 0.3], $
 			/xs, $
 			yr = [0, 35], $
 			orientation = [40], $

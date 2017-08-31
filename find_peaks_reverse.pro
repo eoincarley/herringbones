@@ -11,15 +11,15 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   
   loadct, 5
   !p.charsize = 1
-  cd, '~/Data/22Sep2011_event/herringbones'
+  cd, '~/Data/2011_sep_22/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
-  
+
   if keyword_set(first) then begin
     ; Region of first reverse bursts.  Best performance is angle1 = 190, angle2 = 220
     t1_index = closest(times, anytim(file2time('20110922_104730'),/utim))
     t2_index = closest(times, anytim(file2time('20110922_105030'),/utim))
     f1_index = closest(freq, 62.0)
-    f2_index = closest(freq, 31.0)
+    f2_index = closest(freq, 33.0)
     inten0 = -20  ;-60
     inten1 = 30   ; 30 
     filename_save = 'peak_ft_first_master_reverse.sav'
@@ -30,7 +30,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     t1_index = closest(times, anytim(file2time('20110922_105000'),/utim))
     t2_index = closest(times, anytim(file2time('20110922_105300'),/utim))
     f1_index = closest(freq, 90.0)
-    f2_index = closest(freq, 45.0)
+    f2_index = closest(freq, 41.0)
     inten0 = -20
     inten1 = 40
     filename_save = 'peak_ft_second_master_reverse.sav'
@@ -72,7 +72,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
   t_range = ((t2_index+1.0)-t1_index)
   f_range = (f2_index-f1_index) + 1.0
   backproject = HOUGH(result, /BACKPROJECT, RHO=rho, THETA=theta, nx = t_range, ny = f_range) 
-  normal_back = smooth( backproject/max(backproject) , 3)
+  normal_back = smooth( backproject/max(backproject), 3)
 
   freq_set = freq[f1_index:f2_index]
   time_set = times[t1_index:t2_index]
@@ -138,7 +138,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     
       set_line_color
       plots, times_from_interp, freq_set[f_slice], psym=1, color=3, symsize=2
-
+      
       left_over = abs(n_elements(times_from_interp) - 249.0)
       padding = dblarr(left_over)
       concat = [times_from_interp,padding]
@@ -168,7 +168,7 @@ pro find_peaks_reverse, angle1, angle2, normal_back, $
     
   set_line_color
   plotsym, 0, /fill
-  cd,'~/Data/22Sep2011_event/herringbones'
+  cd,'~/Data/2011_sep_22/herringbones'
   if keyword_set(save_points) then save, peak_time_freq, filename=filename_save
   
   FOR i=0, n_elements(freq_set)-1 do begin

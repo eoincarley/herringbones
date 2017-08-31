@@ -9,7 +9,7 @@ pro burst_intensity
   dimen = 600
   xpos = 500
   ypos = 50
-  folder = '~/Data/22Sep2011_event/herringbones'
+  folder = '~/Data/2011_sep_22/herringbones'
   cd, folder
   
   ;------------------------;
@@ -40,7 +40,7 @@ pro burst_intensity
   figs_folder = beam_kins[5]
   max_bi = fltarr(n_elements(vels))
   ;-----------------------------------;
-  ;			 First intensity v time
+  ;			 First intensity v frequency
   ;
   setup_ps, 'figures/'+figs_folder+'/freq_inten_data.eps'
       FOR i=n_elements(indices)-2, 0, -1 DO BEGIN
@@ -135,6 +135,14 @@ pro burst_intensity
         bi = biall[indices[i]+1: indices[i+1]-1]
         tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
         
+        if bf[0] eq rev2f0 then begin         ;Second reverse
+          index_max = where(bi eq max(bi))
+          index_min = where(bi eq min(bi))
+          ;index_gt2 = where(tsec gt 2.2)
+          bi = bi[index_max : n_elements(bi)-1]
+          tsec = tsec[index_max : n_elements(tsec)-1]
+        endif  
+
         result = linfit(tsec, bi, yfit = yfit)
         bidrift[j] = result[1]  
         start_f[j] = bf[0]
@@ -185,7 +193,8 @@ pro burst_intensity
     plot, [vels], [max_bi], $
         psym=8, $
         symsize=1.1, $
-        xr = [0.05, 0.32], $
+        xr = [0.05, 0.25], $
+        /ys, $
         /xs, $
         xtit = 'Beam velocity (c)', $
         ytit = 'Maximum intensity (DN)'
@@ -224,13 +233,13 @@ pro burst_intensity
         /ys, $
         color = 0, $
         symsize = 1.1, $
-        xtit = 'Beam displacement (Rsun)', $
+        xtit = 'Beam displacement (R  )', $
         ytit = 'Maximum intensity (DN)'
   
     loadct, 74    
     for i =0, n_elements(displ)-1 do begin
       ;Green = 170,  Blue = 220,  Orange = 80,  Red = 50
-      if start_f[i] eq rev2f0 then color = 220     ;Second reverse
+      if start_f[i] eq rev2f0 then color = 220    ;Second reverse
       if start_f[i] eq for2f0 then color = 80     ;Second forward
       if start_f[i] eq for1f0 then color = 50     ;First forward 
       if start_f[i] eq rev1f0 then color = 170    ;First reverse
@@ -283,7 +292,7 @@ pro burst_intensity
   setup_ps, 'figures/'+figs_folder+'/scatter_fdrift_idrift.eps'
     plot, [abs(drift)], [bidrift], $
           psym=8, $
-          xr = [0, 20], $
+          xr = [0, 15], $
           yr = [-25, 5], $
           symsize=1.1, $
           /ys, $

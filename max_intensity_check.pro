@@ -1,4 +1,18 @@
-pro burst_intensity_check
+function calc_vel, tsec, ftfit, model = model
+
+  ftfit_Hz = 1.0*ftfit*1e6                 ; Hz
+  dens = freq2dens(ftfit_Hz)
+  rads = density_to_radius(dens, model = model, fold = 1)
+  result = linfit(tsec, rads)
+  velocity = abs(result[1])*6.955e8  ; m/s
+  velocity = [velocity/2.997e8]   ; speed of light units
+  kins = list(velocity, rads)
+  
+  return, kins
+  
+END
+
+pro max_intensity_check
 
 	; Check that intensity fits are ok.
 
@@ -46,28 +60,14 @@ pro burst_intensity_check
 
 	indices = where(btall eq '-')
 	indices = [-1, indices]
-
-	restore, 'beam_kins.sav', /verb
-
-	drift = beam_kins[0]
-	vels = beam_kins[1]
-	displ = beam_kins[2]
-	flength =  beam_kins[4]
-	figs_folder = beam_kins[5]
-	max_bi = fltarr(n_elements(vels))
-
-
-	  ipos = where(drift gt 0.0)	; Indices of reverse drift only
-	  
-	  
-	  drift = drift[ipos]
+	displ = fltarr(n_elements(indices))
+	max_bi = fltarr(n_elements(indices))
 	
 	;setup_ps, 'figures/'+figs_folder+'/inten_time_fits.eps'
 	j=0
 	window, 0
-	window, 1
-	idrift = 0.
-	drift = 0.
+	window, 1, xs=500, ys=500
+	
 	FOR i=0, n_elements(indices)-2 DO BEGIN
 
         bt = btall[indices[i]+1: indices[i+1]-1]
@@ -75,75 +75,49 @@ pro burst_intensity_check
         bi = biall[indices[i]+1: indices[i+1]-1]
         tsec = anytim(bt[*], /utim) - anytim(bt[0], /utim)
     
+    	; Do fitting
+        result = linfit(tsec, bf, yfit = yfit)
+        start = [result[1]]
+        
+        fit = 'p[0]*x + ' +	string(bf[0], format='(f5.2)')
+        result = mpfitexpr(fit, tsec , bf, err, yfit=ftfit, start)
+        
+        kins = calc_vel(tsec, ftfit, model =  'tcd')
+        radii = kins[1]
+        displ[i] = abs(radii[0] - radii[n_elements(radii)-1])
+        
         ;Plot burst on spectra
         wset, 0
 		plot_burst_on_spectra, data_bs, times, freq, f1_index, f2_index, t1_index, t2_index, bt, bf
 
+    	max_bi[i] = max(bi)
 
-		wset, 1
-        plot, tsec, bi, $
-            psym=1, $
-            xr=[0, 6], $
-            yr=[0, 45], $
-            /xs, $
-            /ys, $
-            position=pos, $
-            /normal, $
-            xtitle = 'Frequency (MHz)', $
-            ytitle = 'Intensity (DNs)', $
-            title = 'Burst number: '+string(j, format='(I02)') 
+    	wset, 1
+    	if max_bi[i] gt 34 and max_bi[i] lt 46 and displ[i] gt 0.12 and displ[i] lt 0.16 then begin
 
-        ;point, tman, iman, /data
-        ;---------------------------------;
-        ;			Check fit
-        ;   
-        tsec_mod = tsec
-        bi_mod = bi
-		if bf[0] eq rev2f0 then begin    ;Second reverse
-			index_max = where(bi eq max(bi))
-			index_min = where(bi eq min(bi))
+	    	plot, [displ[i]], [max_bi[i]], $
+		        psym=8, $
+		        xr = [0.0, 0.3], $
+		        yr = [0.0, 50], $, 
+		        /ys, $
+		        symsize = 1.1, $
+		        xtit = 'Beam displacement (Rsun)', $
+		        ytit = 'Maximum intensity (DN)', $
+		        color = 200, $
+		        /noerase
+		    stop    
+		endif       
 
-			index_gt2 = where(tsec gt 2.2)
-			bi_mod = bi[index_max : index_gt2[0]]
-			tsec_mod = tsec[index_max : index_gt2[0]]			
-			;inds = [0,1,2, n_elements(tsec)-2, n_elements(tsec-1)]
-			;tsec = tsec[inds] ;tsec[closest(tsec, tman[0]): closest(tsec, tman[1])]
-			;bi = bi[inds] ;bi[closest(tsec, tman[0]): closest(tsec, tman[1])]
-		endif	
-		result = linfit(tsec_mod, bi_mod, yfit = yfit, chisq = chisq)
-		DOF = n_elements(bi) - 2.0
-
-		print, ' '
-		print, 'Reduced chi square value: ' + string(chisq)
-		print, 'Prob random variables has better chi: ' $
-				+ string(CHISQR_PDF(chisq, DOF))
-		print, ' '		
-
-      
-        oplot, tsec_mod, yfit, color=100
-
-        sav = ''	; Define B as a string before reading.
-		READ, sav, PROMPT='Save? (y/n) '	
-        if sav eq 'y' then BEGIN
-        	idrift = [idrift, result[1]]
-
-        	result = linfit(tsec, bf, yfit = yfit)
-	        start = [result[1]]
-	        
-	        fit = 'p[0]*x + ' +	string(bf[0], format='(f5.2)')
-	        result = mpfitexpr(fit, tsec , bf, err, yfit=ftfit, start)
-	        
-	       
-        	drift = [drift, result[0]]	
-        endif	
-     	
-        
-    ENDFOR	
-	
-    window, 4
-    plot, drift, idrift
-	stop
-
+			plot, [displ[i]], [max_bi[i]], $
+		        psym=8, $
+		        xr = [0.0, 0.3], $
+		        yr = [0.0, 50], $, 
+		        /ys, $
+		        symsize = 1.1, $
+		        xtit = 'Beam displacement (Rsun)', $
+		        ytit = 'Maximum intensity (DN)', $
+		        /noerase
+	ENDFOR	
 END
 
 pro plot_burst_on_spectra, data_bs, times, freq, f1_index, f2_index, t1_index, t2_index, bt, bf

@@ -6,7 +6,7 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   ;11-Sep-2013 - Code to plot the points detected by the Hough transform
   ;
   ;
-  cd, '~/Data/22Sep2011_event/herringbones'
+  cd, '~/Data/2011_sep_22/herringbones'
   !p.charsize = 1.5
   loadct, 74
   ;reverse_ct
@@ -20,7 +20,7 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
       t2_index = closest(times,anytim(file2time('20110922_105030'),/utim))
       f1_index = closest(freq, freq1)
       f2_index = closest(freq, freq2)
-      inten0 = -20
+      inten0 = -10
       inten1 = 30
       burst_zero_inten = 7.0
       filename_peaks = 'peak_ft_first_master_reverse.sav'
@@ -30,12 +30,12 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
   if keyword_set(second) then begin
       ; Second reverse bursts
       freq1 = 90.0
-      freq2 = 44.0
+      freq2 = 41.0
       t1_index = closest(times,anytim(file2time('20110922_105000'),/utim))
       t2_index = closest(times,anytim(file2time('20110922_105300'),/utim))
       f1_index = closest(freq, freq1)
       f2_index = closest(freq, freq2)
-      inten0 = -5
+      inten0 = -10
       inten1 = 40
       burst_zero_inten = 7.0
       filename_peaks = 'peak_ft_second_master_reverse.sav'
@@ -76,8 +76,8 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
 
     comp_f = ft1[0]
     comp_t = ft1[j]
-    t1_index = closest(times, comp_t - 20.0)
-    t2_index = closest(times, comp_t + 20.0)
+    ;t1_index = closest(times, comp_t - 20.0)
+    ;t2_index = closest(times, comp_t + 20.0)
 
     loadct, 74, /silent
     ;reverse_ct
@@ -105,8 +105,7 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
           ;print, intensity, backg_sample, sig_sample
           ;if intensity le (backg_sample + 0.3*sig_sample) then i=0
 
-
-          IF abs(comp_t - t) gt 0.5 THEN BEGIN
+          IF abs(comp_t - t) gt 0.7 THEN BEGIN
             i = 0
           ENDIF ELSE BEGIN
             btimes = [btimes,  t]
@@ -124,7 +123,7 @@ pro find_bursts_reverse, save_bursts = save_bursts, $
       ENDWHILE
      
       negative_check = btimes[n_elements(btimes)-1] - btimes[0]
-      if n_elements(btimes) gt 5 and negative_check gt 0.0 then begin
+      if n_elements(btimes) gt 5 then begin ;negative_check gt 0.0 then begin
         btimes = btimes[1: n_elements(btimes)-1]
         bf = bf[1: n_elements(bf)-1]
         tindex = btimes

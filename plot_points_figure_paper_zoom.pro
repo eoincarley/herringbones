@@ -15,7 +15,7 @@ pro setup_ps, name
 end
 
 
-pro plot_points_figure_paper
+pro plot_points_figure_paper_zoom
 
   cd, '~/Data/2011_sep_22/herringbones'
   !p.charsize = 1.5
@@ -25,7 +25,7 @@ pro plot_points_figure_paper
   ;			 Read and plot Spectrogram
   ;
   radio_spectro_fits_read,'BIR_20110922_104459_01.fit', data_raw, times, freq
-  t1_index = closest(times, anytim(file2time('20110922_104730'),/utim))
+  t1_index = closest(times, anytim(file2time('20110922_105130'),/utim))
   t2_index = closest(times, anytim(file2time('20110922_105340'),/utim))
 
   f1_index = closest(freq, 90.0)
@@ -33,33 +33,36 @@ pro plot_points_figure_paper
   data_bs = constbacksub(data_raw, /auto)
   xtit = 'Start time: '+anytim(times[t1_index], /cc, /trun)+ ' (UT)'
   
-  setup_ps, 'figures/burst_detections.eps'
+  setup_ps, 'figures/burst_detections_zoom.eps'
       spectro_plot, bytscl(data_bs, -10, 40) , times, freq, $
           /ys, $
           ytitle = 'Frequency (MHz)', $
-          yr = [freq[f1_index], freq[f2_index]], $
-          xrange = [times[t1_index],times[t2_index]], $
+          ;yr = [freq[f1_index], freq[f2_index]], $
+          yr=[90, 45], $
+          xrange='2011-sep-22 '+['10:51:30','10:53:10'], $
+          ;xrange = [times[t1_index],times[t2_index]], $
           /xs, $
           xtitle = xtit, $
-          title = 'eCallisto, Birr Castle, Ireland.', $
           xcolor = '100', $
           xticklen = -0.01, $
           yticklen = -0.01
   
       ; Plot twice because IDL's shitty fucking reverse_ct routine will NOT print the fucking 
       ; axes in black. Christ.
-      loadct, 0    
-      reverse_ct    
+      loadct, 74       
       spectro_plot, bytscl(data_bs, -10, 40) , times, freq, $
           /ys, $
           ytitle = '  ', $
-          yr = [freq[f1_index], freq[f2_index]], $
-          xrange = [times[t1_index],times[t2_index]], $
+          ;yr = [freq[f1_index], freq[f2_index]], $
+          yr=[90, 45], $
+          xrange='2011-sep-22 '+['10:51:30','10:53:10'], $
+          ;xrange = [times[t1_index],times[t2_index]], $
           /xs, $
           xtitle = ' ', $
           xticks=1, $
           yticks=1, $
           xtickname = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], $
+          ytickname = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '], $
           /noerase
 
       ;-------------------------------------;
@@ -100,10 +103,9 @@ pro plot_bursts, btall, bfall, biall, color = color
         bi = biall[indices[i]+1: indices[i+1]-1]	
     
         set_line_color
-        oplot, bt, bf, psym = 8, symsize=0.4, color=0
+        oplot, bt, bf, psym = 8, symsize=0.4, color = 0
         ;oplot, bt, bf, psym = 8, symsize=0.3, color=0
-        loadct, 74, /silent
-        oplot, bt, bf, psym = 8, symsize=0.3, color = color         
+        oplot, bt, bf, psym = 8, symsize=0.2, color = 1        
   ENDFOR
   
 END  

@@ -2,6 +2,8 @@ pro find_peaks_forward, angle1, angle2, normal_back, $
           PLOT_HOUGH=plot_hough, SAVE_POINTS = save_points, $
           SECOND = second, FIRST = first
 
+  ; Intensity peak-finding algorithm employing the Hough Transform.        
+
   ; v5 first finds all bursts for a particular frequency slice and then succesively moves onto the
   ; next frequencies. Need to do it the other way around e.g., get the first peak and trace this peak 
   ; all the way trough so I can get an array indicating individual bursts in columns
@@ -10,7 +12,7 @@ pro find_peaks_forward, angle1, angle2, normal_back, $
   
   loadct, 5
   !p.charsize = 1
-  cd, '~/Data/22Sep2011_event/herringbones'
+  cd, '~/Data/2011_sep_22/herringbones'
   radio_spectro_fits_read, 'BIR_20110922_104459_01.fit', data_raw, times, freq
   
   ; Now forward drift bursts. First.
@@ -31,10 +33,10 @@ pro find_peaks_forward, angle1, angle2, normal_back, $
   ; best performance is angle1 = 138, angle2 = 175
   if keyword_set(second) then begin
     t1_index = closest(times,anytim(file2time('20110922_105110'),/utim))
-    t2_index = closest(times,anytim(file2time('20110922_105500'),/utim))
+    t2_index = closest(times,anytim(file2time('20110922_105330'),/utim))
     f1_index = closest(freq, 43.0)
     f2_index = closest(freq, 17.0)
-    inten0 = -20
+    inten0 = -10
     inten1 = 50
     outname = 'peak_ft_second_master_forward.sav'
     smooth_param = 1
@@ -103,7 +105,7 @@ pro find_peaks_forward, angle1, angle2, normal_back, $
 
 
   ;************************************************************************;
-  ;			INTERPOLATION SEEMS TO HAVE DONE THE JOP OF 'JOINING THE DOTS'
+  ;			INTERPOLATION SEEMS TO HAVE DONE THE JOB OF 'JOINING THE DOTS'
   ;     IN A SMOOTH WAY
   ;
   burst_times = 0.0
@@ -162,7 +164,7 @@ pro find_peaks_forward, angle1, angle2, normal_back, $
 
   ;-------------- PLOT ALL DATA POINTS FOUND -----------------
   
-  loadct, 5, /silent
+  loadct, 74, /silent
   reverse_ct
   window, 1, xs=2400, ys=700
   spectro_plot, smooth( bytscl(data_bs, inten0, inten1), smooth_param ), times, freq, $
@@ -178,7 +180,7 @@ pro find_peaks_forward, angle1, angle2, normal_back, $
     
   set_line_color
   plotsym, 0, /fill
-  cd,'~/Data/22Sep2011_event/herringbones'
+  cd,'~/Data/2011_sep_22/herringbones'
   if keyword_set(save_points) then save, peak_time_freq, filename=outname
   FOR i=0, n_elements(freq_set)-1 do begin
       plots, peak_time_freq[i,1:99], peak_time_freq[i,0.0], color=4, psym=8, symsize=0.5

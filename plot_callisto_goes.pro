@@ -1,6 +1,6 @@
 pro read_goes, goes_array
   
-  file = '~/Data/22Sep2011_event/20110922_Gp_xr_1m.txt'
+  file = '~/Data/2011_sep_22/20110922_Gp_xr_1m.txt'
 
  readcol, file, y, m, d, hhmm, mjd, sod, short_channel, long_channel;, $
           format = 'A, A, A, A, A, A, L, L'
@@ -29,7 +29,7 @@ pro plot_callisto_goes
   ;
 
 
-  cd, '~/Data/22Sep2011_event/herringbones'
+  cd, '~/Data/2011_sep_22/herringbones'
   
   xstart = anytim(file2time('20110922_100000'),/utim)
   xend = anytim(file2time('20110922_120000'),/utim)
